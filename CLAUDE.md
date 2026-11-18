@@ -51,9 +51,13 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   Rôles : `admin`, `journaliste`, `redacteur`, `lecteur` (table `roles`, authorities `ROLE_XXX`).
 - L'inscription publique (`/api/auth/register`) donne **toujours** le rôle `lecteur`
   (un test d'intégration le vérifie) — ne jamais laisser le client choisir son rôle.
+  Seul l'admin change les rôles (`PUT /api/utilisateurs/{id}/roles`, onglet « Utilisateurs » du dashboard) ;
+  `UtilisateurService` empêche de retirer son propre rôle admin, de supprimer son compte, et garde au moins un admin.
 - `exception/GlobalExceptionHandler` : erreurs JSON `ApiError` ; accès refusé → 401 si anonyme, 403 si connecté.
   Pour refuser un accès dans le code (ex. « pas votre ressource »), lever `AccessDeniedException("message")` :
   jamais `BadRequestException` ni `ResponseEntity.status(403)` sans corps.
+  Erreurs du client (JSON invalide, id non numérique, route inconnue…) → 4xx explicites ; le 500 générique
+  loggue l'exception et ne renvoie **jamais** son message (pas de fuite de détails internes).
 - `config/DataInitializer` crée l'admin par défaut s'il n'en existe aucun.
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 
@@ -61,6 +65,8 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `src/app/pages/` : home, actualites, article-detail, login, dashboard (protégé par `roleGuard` : admin/journaliste/redacteur).
 - `src/app/core/` : `services/` (appels API), `guards/`, `interceptors/auth.interceptor.ts` (ajoute le Bearer token), `models/models.ts`.
 - Token + utilisateur stockés dans `localStorage` (`echo_migrant_token`, `echo_migrant_user`).
+  Token expiré supprimé au démarrage (`AuthService.isExpired`) ; un 401 de l'API déconnecte et renvoie vers `/login?session=expiree`.
+- `app.config.ts` enregistre la locale `fr-FR` (sans elle, les pipes `date` plantent : NG0701).
 - URL de l'API : `src/environments/environment*.ts`.
 
 ## Règles métier et pièges du code
