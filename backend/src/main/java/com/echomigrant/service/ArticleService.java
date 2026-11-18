@@ -53,11 +53,20 @@ public class ArticleService {
      */
     @Transactional(readOnly = true)
     public ArticleResponse findVisibleById(Long id, Utilisateur utilisateur) {
+        return ArticleResponse.from(getVisibleOrThrow(id, utilisateur), uploadsBaseUrl);
+    }
+
+    /**
+     * Renvoie l'article s'il est visible par cet utilisateur (null = visiteur anonyme),
+     * sinon lève une 404. Réutilisé partout où un article est atteint par son id (commentaires…).
+     */
+    @Transactional(readOnly = true)
+    public Article getVisibleOrThrow(Long id, Utilisateur utilisateur) {
         Article article = getOrThrow(id);
         if (!estVisiblePubliquement(article) && !estEditorial(utilisateur)) {
             throw ResourceNotFoundException.of("Article", id);
         }
-        return ArticleResponse.from(article, uploadsBaseUrl);
+        return article;
     }
 
     private static boolean estVisiblePubliquement(Article article) {

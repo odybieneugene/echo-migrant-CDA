@@ -62,9 +62,12 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 
 - `GET /api/articles/{id}` (public) : un brouillon ou un article sans statut renvoie 404, sauf pour
   admin/journaliste/redacteur (prévisualisation). Les articles `archive` restent lisibles par lien direct.
+  Tout accès à un article par son id passe par `ArticleService.getVisibleOrThrow(id, utilisateur)`.
+- `GET /api/commentaires?articleId=X` est public (si l'article est visible) ; sans `articleId` : admin uniquement.
+- `open-in-view: false` : une relation `LAZY` lue dans un DTO hors transaction plante
+  (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.
 
 ## Problèmes connus non corrigés
-- `GET /api/commentaires` exige d'être connecté : un visiteur ne voit pas les commentaires.
 - `SecurityConfig` autorise `POST /api/utilisateurs` alors que cette route n'existe pas.
 - `AbonnementController.ensureOwnerOrAdmin` renvoie 400 au lieu de 403.
 - `DataInitializer` et la gestion « en vedette » de `ArticleService` chargent toute la table (`findAll()`).

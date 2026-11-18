@@ -83,7 +83,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/ping", "/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/articles", "/api/articles/*", "/api/categories/**",
                     "/api/formats/**", "/api/types-articles/**", "/api/statuses/**", "/api/tags-seo/**",
-                    "/uploads/**").permitAll()
+                    "/api/commentaires", "/uploads/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/utilisateurs").permitAll()
                 .anyRequest().authenticated()
             )

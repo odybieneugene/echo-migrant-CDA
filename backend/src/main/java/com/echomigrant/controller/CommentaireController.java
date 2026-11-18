@@ -4,10 +4,12 @@ import com.echomigrant.dto.CommentaireDto;
 import com.echomigrant.dto.CommentaireRequest;
 import com.echomigrant.entity.Article;
 import com.echomigrant.entity.Commentaire;
+import com.echomigrant.entity.Role;
 import com.echomigrant.entity.Utilisateur;
 import com.echomigrant.exception.ResourceNotFoundException;
-import com.echomigrant.repository.ArticleRepository;
 import com.echomigrant.repository.CommentaireRepository;
+import com.echomigrant.service.ArticleService;
+import org.springframework.security.access.AccessDeniedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,13 +26,26 @@ import java.util.List;
 public class CommentaireController {
 
     private final CommentaireRepository commentaireRepository;
-    private final ArticleRepository articleRepository;
+    private final ArticleService articleService;
 
+    // GET /api/commentaires?articleId=X -> public, si l'article est visible (pas un brouillon pour un visiteur)
+    // GET /api/commentaires             -> tous les commentaires du site : réservé à l'admin (modération)
     @GetMapping
-    public List<CommentaireDto> index(@RequestParam(required = false) Long articleId) {
-        List<Commentaire> commentaires = articleId != null
-            ? commentaireRepository.findByArticleIdOrderByCreatedAtDesc(articleId)
-            : commentaireRepository.findAll();
+    public List<CommentaireDto> index(
+        @RequestParam(required = false) Long articleId,
+        @AuthenticationPrincipal Utilisateur utilisateur
+    ) {
+        List<Commentaire> commentaires;
+        if (articleId != null) {
+            articleService.getVisibleOrThrow(articleId, utilisateur);
+            commentaires = commentaireRepository.findByArticleIdOrderByCreatedAtDesc(articleId);
+        } else {
+            if (utilisateur == null || !utilisateur.hasRole(Role.ADMIN)) {
+                // Traduit en 401 (anonyme) ou 403 (connecté) par GlobalExceptionHandler
+                throw new AccessDeniedException("Liste complète des commentaires réservée à l'admin");
+            }
+            commentaires = commentaireRepository.findAllByOrderByCreatedAtDesc();
+        }
         return commentaires.stream().map(CommentaireDto::from).toList();
     }
 
@@ -40,8 +55,8 @@ public class CommentaireController {
         @Valid @RequestBody CommentaireRequest request,
         @AuthenticationPrincipal Utilisateur utilisateur
     ) {
-        Article article = articleRepository.findById(request.articleId())
-            .orElseThrow(() -> ResourceNotFoundException.of("Article", request.articleId()));
+        // On ne peut commenter qu'un article visible (pas un brouillon deviné par son id)
+        Article article = articleService.getVisibleOrThrow(request.articleId(), utilisateur);
 
         Commentaire commentaire = new Commentaire();
         commentaire.setContenu(request.contenu());
