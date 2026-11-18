@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Article } from '../../core/models/models';
+import { Article, IMAGE_ARTICLE_PAR_DEFAUT } from '../../core/models/models';
 
 @Component({
   selector: 'app-featured-article',
@@ -10,5 +10,6 @@ import { Article } from '../../core/models/models';
   templateUrl: './featured-article.component.html'
 })
 export class FeaturedArticleComponent {
+  readonly imageParDefaut = IMAGE_ARTICLE_PAR_DEFAUT;
   @Input({ required: true }) article!: Article;
 }

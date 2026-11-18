@@ -1,13 +1,21 @@
+<!-- Section masquée tant qu'aucun article publié n'a le format vidéo ou podcast -->
 @if (videos.length > 0) {
-  <section class="container py-5 bg-light rounded">
+  <section class="container py-5">
     <h2 class="mb-4">Vidéos &amp; podcasts</h2>
     <div class="row g-4">
       @for (video of videos; track video.id) {
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6 col-lg-4">
           <a [routerLink]="['/actualites', video.id]" class="text-decoration-none text-dark">
-            <div class="ratio ratio-16x9 mb-2 bg-dark rounded d-flex align-items-center justify-content-center text-white">
-              ▶
+            <div class="ratio ratio-16x9 mb-2 rounded overflow-hidden position-relative">
+              <img [src]="video.imageCouverture || imageParDefaut" alt="" style="object-fit: cover;">
+              <div class="d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,.35);">
+                <span class="d-flex align-items-center justify-content-center rounded-circle bg-white text-dark fs-3"
+                      style="width: 64px; height: 64px;" aria-hidden="true">{{ video.format?.nom === 'podcast' ? '🎧' : '▶' }}</span>
+              </div>
             </div>
+            <span class="badge mb-1" style="background-color: var(--em-accent);">
+              {{ video.format?.nom === 'podcast' ? 'Podcast' : 'Vidéo' }}
+            </span>
             <h6>{{ video.titre }}</h6>
           </a>
         </div>

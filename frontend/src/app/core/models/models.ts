@@ -72,3 +72,6 @@ export interface InscriptionNewsletter {
   email: string;
   createdAt: string;
 }
+
+/** Visuel des articles sans image de couverture (fichier local dans public/img). */
+export const IMAGE_ARTICLE_PAR_DEFAUT = '/img/article-par-defaut.svg';

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Article, NomDescription } from '../../core/models/models';
+import { Article, NomDescription, IMAGE_ARTICLE_PAR_DEFAUT } from '../../core/models/models';
 import { ArticleService } from '../../core/services/article.service';
 import { ReferenceDataService } from '../../core/services/reference-data.service';
 
@@ -12,6 +12,7 @@ import { ReferenceDataService } from '../../core/services/reference-data.service
   templateUrl: './actualites.component.html'
 })
 export class ActualitesComponent implements OnInit {
+  readonly imageParDefaut = IMAGE_ARTICLE_PAR_DEFAUT;
   articles: Article[] = [];
   categories: NomDescription[] = [];
   categorieFiltre: number | null = null;

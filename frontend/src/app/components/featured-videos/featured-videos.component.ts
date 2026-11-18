@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Article } from '../../core/models/models';
+import { Article, IMAGE_ARTICLE_PAR_DEFAUT } from '../../core/models/models';
 
 @Component({
   selector: 'app-featured-videos',
@@ -11,4 +11,5 @@ import { Article } from '../../core/models/models';
 })
 export class FeaturedVideosComponent {
   @Input() videos: Article[] = [];
+  readonly imageParDefaut = IMAGE_ARTICLE_PAR_DEFAUT;
 }
