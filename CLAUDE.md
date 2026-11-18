@@ -25,6 +25,8 @@ Tout lancer en Docker (dev) : `docker compose up --build` depuis ce dossier.
 `docker compose -f docker-compose.prod.yml --env-file .env up -d --build` → site sur `HTTP_PORT` (80 par défaut).
 nginx (image `frontend/Dockerfile`, `frontend/nginx.conf`) sert l'Angular compilé et relaie `/api` et `/uploads`
 au backend ; base et backend ne sont pas exposés. `.env` n'est jamais commité (`.gitignore`).
+Guide serveur complet (VPS, Caddy/HTTPS, sauvegardes testées, mises à jour) : `DEPLOIEMENT.md`.
+En prod nginx écoute sur `HTTP_BIND=127.0.0.1` : un port publié par Docker contourne UFW.
 
 Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 

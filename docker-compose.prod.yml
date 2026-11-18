@@ -12,9 +12,17 @@
 
 name: echo-migrant-prod
 
+# Journaux Docker limités (3 fichiers de 10 Mo par conteneur) : sinon ils grossissent jusqu'à remplir le disque
+x-journaux: &journaux
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   postgres:
     image: postgres:16
+    logging: *journaux
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:?DB_NAME manquant dans .env}
@@ -31,6 +39,7 @@ services:
 
   backend:
     build: ./backend
+    logging: *journaux
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
@@ -53,10 +62,13 @@ services:
 
   frontend:
     build: ./frontend
+    logging: *journaux
     restart: unless-stopped
     ports:
-      # Seul port ouvert. Derrière le reverse proxy HTTPS de l'hôte : HTTP_PORT=8080 par exemple
-      - "${HTTP_PORT:-80}:80"
+      # Seul port ouvert. Derrière le reverse proxy HTTPS de l'hôte (cas normal, voir DEPLOIEMENT.md) :
+      # HTTP_BIND=127.0.0.1 et HTTP_PORT=8080. Attention : un port publié par Docker contourne le
+      # pare-feu UFW ; écouter sur 127.0.0.1 est le seul moyen de le garder inaccessible d'internet.
+      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-80}:80"
     depends_on:
       - backend
 

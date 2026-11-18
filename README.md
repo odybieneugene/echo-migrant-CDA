@@ -54,6 +54,20 @@ npm install
 npx ng serve
 ```
 
+## Mise en production
+
+Stack de production prête (`docker-compose.prod.yml`) : Angular compilé servi par nginx, qui relaie `/api` et `/uploads`
+au backend ; backend en profil `prod`, qui **refuse de démarrer** si un secret manque ou est faible ; base et API non exposées.
+
+```bash
+cp .env.example .env      # puis y mettre de vrais secrets (commandes de génération dans le fichier)
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Guide complet (serveur, HTTPS avec Caddy, sauvegardes et restauration, mises à jour, dépannage) :
+**[DEPLOIEMENT.md](DEPLOIEMENT.md)**. L'intégration continue (GitHub Actions) teste le backend sur Java 21,
+teste et compile le front, et construit les images Docker à chaque push.
+
 ## Tests
 
 ```bash
