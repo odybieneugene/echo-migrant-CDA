@@ -89,6 +89,15 @@ class EchoMigrantAuthFlowIntegrationTest {
     }
 
     @Test
+    void postUtilisateurs_nEstPasPublic() throws Exception {
+        // Avant : règle permitAll sur une route inexistante (réponse 405 au lieu de 401)
+        mockMvc.perform(post("/api/utilisateurs")
+                .contentType("application/json")
+                .content("{}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void adminArticlesEndpointRequiresAuthentication() throws Exception {
         mockMvc.perform(get("/api/articles/admin"))
             .andExpect(status().isUnauthorized());

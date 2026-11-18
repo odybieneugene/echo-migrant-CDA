@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/articles", "/api/articles/*", "/api/categories/**",
                     "/api/formats/**", "/api/types-articles/**", "/api/statuses/**", "/api/tags-seo/**",
                     "/api/commentaires", "/uploads/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/utilisateurs").permitAll()
+                // L'inscription publique passe par /api/auth/register ; tout le reste exige un token.
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

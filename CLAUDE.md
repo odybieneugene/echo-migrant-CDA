@@ -68,6 +68,5 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.
 
 ## Problèmes connus non corrigés
-- `SecurityConfig` autorise `POST /api/utilisateurs` alors que cette route n'existe pas.
 - `AbonnementController.ensureOwnerOrAdmin` renvoie 400 au lieu de 403.
 - `DataInitializer` et la gestion « en vedette » de `ArticleService` chargent toute la table (`findAll()`).
