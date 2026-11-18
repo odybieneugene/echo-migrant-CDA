@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -28,6 +28,9 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  /** Renseigné par l'intercepteur HTTP quand l'API a refusé un token (session expirée). */
+  readonly sessionExpiree = inject(ActivatedRoute).snapshot.queryParamMap.get('session') === 'expiree';
 
   constructor(private authService: AuthService, private router: Router) {}
 

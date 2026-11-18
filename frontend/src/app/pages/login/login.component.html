@@ -8,6 +8,9 @@
     </li>
   </ul>
 
+  @if (sessionExpiree && !errorMessage) {
+    <div class="alert alert-warning">Votre session a expiré. Veuillez vous reconnecter.</div>
+  }
   @if (errorMessage) {
     <div class="alert alert-danger">{{ errorMessage }}</div>
   }
