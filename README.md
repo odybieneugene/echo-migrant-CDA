@@ -68,6 +68,11 @@ Guide complet (serveur, HTTPS avec Caddy, sauvegardes et restauration, mises à 
 **[DEPLOIEMENT.md](DEPLOIEMENT.md)**. L'intégration continue (GitHub Actions) teste le backend sur Java 21,
 teste et compile le front, et construit les images Docker à chaque push.
 
+## Démonstration
+
+Comptes de démo (un par rôle) : `python scripts/demo/creer-comptes-demo.py`.
+Scénario de présentation, matrice des droits, évolutions prévues : **[SOUTENANCE.md](SOUTENANCE.md)**.
+
 ## Tests
 
 ```bash
