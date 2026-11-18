@@ -1,5 +1,7 @@
 # Echo Migrant — version Java (Spring Boot + Angular + PostgreSQL)
 
+[![CI](https://github.com/odybieneugene/echo-migrant-CDA/actions/workflows/ci.yml/badge.svg)](https://github.com/odybieneugene/echo-migrant-CDA/actions/workflows/ci.yml)
+
 Reconstruction du projet **Echo Migrant** (journal numérique sur les questions migratoires, initialement en Laravel + React) avec une stack Java, pour le stage CDA à l'AFPA : **Spring Boot 3 / Java 21**, **Angular**, **PostgreSQL**.
 
 La version Laravel/React d'origine se trouve dans un dépôt séparé, conservé à titre de référence : [odybieneugene/echo-migrant](https://github.com/odybieneugene/echo-migrant).

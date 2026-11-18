@@ -45,8 +45,11 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   (`taskkill /FI ...`) : ça peut tuer `ng serve`, le backend de dev ou d'autres programmes.
 - curl de Git Bash est un programme Windows : dans `-F "x=@fichier"`, utiliser un chemin **relatif** (un chemin
   `/c/...` échoue avec « curl: (26) Failed to open/read local data »).
-- Secrets générés avec `openssl` sous Windows : la sortie se termine par `
-` → retirer `` (`tr -d '
+- Secrets générés avec `openssl` sous Windows : la sortie se termine par `
+
+` → retirer `
+` (`tr -d '
+
 '`).
   Le profil prod refuse désormais un secret contenant un caractère invisible.
 - Si `ng` est introuvable ou que des types `@angular/*` manquent : `node_modules` est corrompu,
@@ -79,7 +82,8 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   (variable manquante → l'appli ne démarre pas) et `config/ProductionConfigValidator` refuse les secrets faibles ou
   de dev (JWT < 32 caractères ou contenant « changeme », mot de passe admin < 12 ou connu, `DB_PASSWORD` connu).
   Les `@Value` n'ont pas de valeur par défaut dans le code : les défauts de dev sont **uniquement** dans `application.yml`.
-  Il refuse aussi un secret contenant un caractère invisible (`` d'un `.env` au format Windows).
+  Il refuse aussi un secret contenant un caractère invisible (`
+` d'un `.env` au format Windows).
   En prod `UPLOADS_BASE_URL` est vide → URLs d'images relatives (`/uploads/...`) servies via nginx.
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 
@@ -106,6 +110,12 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.
 - Ne pas charger une table entière (`findAll()`) pour chercher une ligne : écrire une méthode de
   repository ciblée (`existsBy…`, `findBy…True`…). `findAll()` reste normal pour les routes « liste ».
+
+## Intégration continue
+`.github/workflows/ci.yml` (GitHub Actions, à chaque push/PR sur `main`) : `mvn verify` sur **Java 21**,
+tests front (`ng test` en Chrome headless) + build de prod (échoue s'il contient `localhost:8081`),
+puis images Docker + `nginx -t`. Suivi : onglet Actions du dépôt (badge dans le README).
+Tests front : `cd frontend; npx ng test --watch=false --browsers=ChromeHeadless`.
 
 ## Tests (`backend/src/test`)
 - Profil `test` : H2 mode PostgreSQL, Flyway désactivé, tables créées par Hibernate,
