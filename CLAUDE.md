@@ -58,16 +58,23 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 - Token + utilisateur stockés dans `localStorage` (`echo_migrant_token`, `echo_migrant_user`).
 - URL de l'API : `src/environments/environment*.ts`.
 
-### Tests (`backend/src/test`)
-- Profil `test` : H2 mode PostgreSQL, Flyway désactivé, tables créées par Hibernate,
-  rôles insérés par `src/test/resources/test-data.sql`.
-
+## Règles métier et pièges du code
 - `GET /api/articles/{id}` (public) : un brouillon ou un article sans statut renvoie 404, sauf pour
   admin/journaliste/redacteur (prévisualisation). Les articles `archive` restent lisibles par lien direct.
   Tout accès à un article par son id passe par `ArticleService.getVisibleOrThrow(id, utilisateur)`.
 - `GET /api/commentaires?articleId=X` est public (si l'article est visible) ; sans `articleId` : admin uniquement.
+  On ne peut commenter qu'un article visible.
+- Un seul article « en vedette » à la fois (`ArticleService.retirerVedetteDesAutres`).
 - `open-in-view: false` : une relation `LAZY` lue dans un DTO hors transaction plante
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.
+- Ne pas charger une table entière (`findAll()`) pour chercher une ligne : écrire une méthode de
+  repository ciblée (`existsBy…`, `findBy…True`…). `findAll()` reste normal pour les routes « liste ».
 
-## Problèmes connus non corrigés
-- `DataInitializer` et la gestion « en vedette » de `ArticleService` chargent toute la table (`findAll()`).
+## Tests (`backend/src/test`)
+- Profil `test` : H2 mode PostgreSQL, Flyway désactivé, tables créées par Hibernate,
+  rôles et statuts insérés par `src/test/resources/test-data.sql` (à compléter si un test a besoin d'autres données de référence).
+- Tests d'intégration MockMvc (`@SpringBootTest` + `@ActiveProfiles("test")`) : un fichier par sujet
+  (auth, visibilité des articles, commentaires, accès aux ressources, vedette). Le contexte et la base H2
+  sont partagés entre classes : chaque test crée ses propres données (emails uniques) et n'asserte que sur elles.
+- Compte admin disponible en test : `admin@echomigrant.local` / `ChangeMoi123!` (créé par `DataInitializer`).
+- Toute correction de bug s'accompagne d'un test qui échouait avant la correction.

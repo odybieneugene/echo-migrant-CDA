@@ -89,9 +89,7 @@ public class ArticleService {
         }
 
         if (Boolean.TRUE.equals(request.estEnVedette())) {
-            articleRepository.findAll().stream()
-                .filter(Article::isEstEnVedette)
-                .forEach(a -> a.setEstEnVedette(false));
+            retirerVedetteDesAutres(null); // le nouvel article n'a pas encore d'id
         }
 
         return ArticleResponse.from(articleRepository.save(article), uploadsBaseUrl);
@@ -110,12 +108,21 @@ public class ArticleService {
         }
 
         if (Boolean.TRUE.equals(request.estEnVedette())) {
-            articleRepository.findAll().stream()
-                .filter(a -> !a.getId().equals(id) && a.isEstEnVedette())
-                .forEach(a -> a.setEstEnVedette(false));
+            retirerVedetteDesAutres(id);
         }
 
         return ArticleResponse.from(articleRepository.save(article), uploadsBaseUrl);
+    }
+
+    /**
+     * Un seul article en vedette à la fois : retire la vedette à tous les autres.
+     * idAGarder est exclu car, en mise à jour, l'article modifié est déjà marqué en vedette
+     * (et Hibernate le flushe avant la requête, il remonterait donc dans le résultat).
+     */
+    private void retirerVedetteDesAutres(Long idAGarder) {
+        articleRepository.findByEstEnVedetteTrue().stream()
+            .filter(a -> !a.getId().equals(idAGarder))
+            .forEach(a -> a.setEstEnVedette(false));
     }
 
     @Transactional

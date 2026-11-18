@@ -36,8 +36,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        boolean adminExists = utilisateurRepository.findAll().stream().anyMatch(u -> u.hasRole(Role.ADMIN));
-        if (adminExists) {
+        if (utilisateurRepository.existsByRoles_NomIgnoreCase(Role.ADMIN)) {
             return;
         }
 

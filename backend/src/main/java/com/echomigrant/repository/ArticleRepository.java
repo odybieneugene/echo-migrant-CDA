@@ -13,4 +13,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllPublies(Pageable pageable);
 
     List<Article> findAllByOrderByCreatedAtDesc();
+
+    // Utilise l'index idx_articles_est_en_vedette ; en pratique 0 ou 1 article
+    List<Article> findByEstEnVedetteTrue();
 }
