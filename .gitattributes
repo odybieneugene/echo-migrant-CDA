@@ -1,0 +1,10 @@
+# Fichiers de déploiement toujours en fins de ligne LF, même extraits sous Windows (core.autocrlf=true) :
+# un "\r" invisible dans un .env, un script ou une config casse le déploiement sous Linux
+# (vécu : mot de passe admin contenant "\r" -> connexion impossible).
+.env*            text eol=lf
+*.sh             text eol=lf
+*.conf           text eol=lf
+Dockerfile       text eol=lf
+*.yml            text eol=lf
+*.yaml           text eol=lf
+*.sql            text eol=lf
