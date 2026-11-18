@@ -47,6 +47,8 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 - L'inscription publique (`/api/auth/register`) donne **toujours** le rôle `lecteur`
   (un test d'intégration le vérifie) — ne jamais laisser le client choisir son rôle.
 - `exception/GlobalExceptionHandler` : erreurs JSON `ApiError` ; accès refusé → 401 si anonyme, 403 si connecté.
+  Pour refuser un accès dans le code (ex. « pas votre ressource »), lever `AccessDeniedException("message")` :
+  jamais `BadRequestException` ni `ResponseEntity.status(403)` sans corps.
 - `config/DataInitializer` crée l'admin par défaut s'il n'en existe aucun.
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 
@@ -68,5 +70,4 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.
 
 ## Problèmes connus non corrigés
-- `AbonnementController.ensureOwnerOrAdmin` renvoie 400 au lieu de 403.
 - `DataInitializer` et la gestion « en vedette » de `ArticleService` chargent toute la table (`findAll()`).

@@ -74,9 +74,10 @@ public class CommentaireController {
             .orElseThrow(() -> ResourceNotFoundException.of("Commentaire", id));
 
         boolean isOwner = commentaire.getUtilisateur().getId().equals(utilisateur.getId());
-        boolean isAdmin = utilisateur.hasRole("admin");
+        boolean isAdmin = utilisateur.hasRole(Role.ADMIN);
         if (!isOwner && !isAdmin) {
-            return ResponseEntity.status(403).build();
+            // Réponse 403 au format ApiError, comme les autres erreurs (via GlobalExceptionHandler)
+            throw new AccessDeniedException("Seul l'auteur du commentaire ou un admin peut le supprimer");
         }
 
         commentaireRepository.delete(commentaire);

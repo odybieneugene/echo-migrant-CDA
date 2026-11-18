@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,8 +47,13 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiError.of(401, "Unauthorized", "Non authentifié. Veuillez vous connecter."));
         }
+        // Refus d'un @PreAuthorize (message Spring "Access Denied") -> message générique ;
+        // refus levé par notre code (ex. "pas votre abonnement") -> on garde son message précis.
+        String message = ex instanceof AuthorizationDeniedException
+            ? "Accès refusé : rôle insuffisant"
+            : ex.getMessage();
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiError.of(403, "Forbidden", "Accès refusé : rôle insuffisant"));
+            .body(ApiError.of(403, "Forbidden", message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

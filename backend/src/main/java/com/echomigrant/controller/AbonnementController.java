@@ -3,6 +3,7 @@ package com.echomigrant.controller;
 import com.echomigrant.dto.AbonnementDto;
 import com.echomigrant.dto.AbonnementRequest;
 import com.echomigrant.entity.Abonnement;
+import com.echomigrant.entity.Role;
 import com.echomigrant.entity.Utilisateur;
 import com.echomigrant.exception.BadRequestException;
 import com.echomigrant.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -84,8 +86,9 @@ public class AbonnementController {
 
     private void ensureOwnerOrAdmin(Abonnement abonnement, Utilisateur utilisateur) {
         boolean isOwner = abonnement.getUtilisateur().getId().equals(utilisateur.getId());
-        if (!isOwner && !utilisateur.hasRole("admin")) {
-            throw new BadRequestException("Vous n'avez pas accès à cet abonnement");
+        if (!isOwner && !utilisateur.hasRole(Role.ADMIN)) {
+            // 403 (et non 400) : la requête est valide, c'est l'accès qui est refusé
+            throw new AccessDeniedException("Vous n'avez pas accès à cet abonnement");
         }
     }
 
