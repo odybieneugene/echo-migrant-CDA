@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NewsletterService } from '../../core/services/newsletter.service';
 
 @Component({
   selector: 'app-newsletter',
@@ -11,9 +12,27 @@ import { FormsModule } from '@angular/forms';
 export class NewsletterComponent {
   email = '';
   submitted = false;
+  loading = false;
+  erreur = '';
 
-  subscribe(): void {
-    // Pas d'endpoint newsletter dans le MLD actuel : simple confirmation visuelle côté client.
-    this.submitted = !!this.email;
+  constructor(private newsletterService: NewsletterService) {}
+
+  subscribe(form: NgForm): void {
+    if (form.invalid) {
+      this.erreur = 'Veuillez saisir une adresse email valide.';
+      return;
+    }
+    this.loading = true;
+    this.erreur = '';
+    this.newsletterService.inscrire(this.email).subscribe({
+      next: () => {
+        this.submitted = true;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.erreur = err.error?.fieldErrors?.email ?? err.error?.message ?? "L'inscription a échoué, réessayez plus tard.";
+        this.loading = false;
+      }
+    });
   }
 }

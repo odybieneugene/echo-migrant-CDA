@@ -66,3 +66,9 @@ export interface Commentaire {
   utilisateurNomComplet: string;
   createdAt: string;
 }
+
+export interface InscriptionNewsletter {
+  id: number;
+  email: string;
+  createdAt: string;
+}

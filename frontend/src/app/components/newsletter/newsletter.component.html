@@ -4,10 +4,15 @@
     <p>Recevez les dernières actualités sur les questions migratoires directement par email.</p>
 
     @if (!submitted) {
-      <form class="d-flex justify-content-center gap-2 flex-wrap" (ngSubmit)="subscribe()">
-        <input type="email" class="form-control w-auto" placeholder="Votre email" [(ngModel)]="email" name="email" required>
-        <button type="submit" class="btn btn-light">S'abonner</button>
+      <form #f="ngForm" class="d-flex justify-content-center gap-2 flex-wrap" (ngSubmit)="subscribe(f)" novalidate>
+        <input type="email" class="form-control w-auto" placeholder="Votre email" aria-label="Votre email"
+               [(ngModel)]="email" name="email" required email maxlength="255">
+        <button type="submit" class="btn btn-light" [disabled]="loading">S'abonner</button>
       </form>
+      @if (erreur) {
+        <p class="mt-3 mb-0 fw-bold" role="alert">{{ erreur }}</p>
+      }
+      <p class="small mt-3 mb-0 opacity-75">Votre email sert uniquement à l'envoi de la newsletter. Il n'est jamais partagé.</p>
     } @else {
       <p class="fw-bold">Merci ! Vous êtes inscrit(e) à la newsletter.</p>
     }

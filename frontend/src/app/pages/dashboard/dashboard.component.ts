@@ -5,15 +5,16 @@ import { ArticleService } from '../../core/services/article.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardArticleFormComponent } from '../../components/dashboard-article-form/dashboard-article-form.component';
 import { DashboardUtilisateursComponent } from '../../components/dashboard-utilisateurs/dashboard-utilisateurs.component';
+import { DashboardNewsletterComponent } from '../../components/dashboard-newsletter/dashboard-newsletter.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardArticleFormComponent, DashboardUtilisateursComponent],
+  imports: [CommonModule, DashboardArticleFormComponent, DashboardUtilisateursComponent, DashboardNewsletterComponent],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
-  onglet: 'articles' | 'utilisateurs' = 'articles';
+  onglet: 'articles' | 'utilisateurs' | 'newsletter' = 'articles';
   articles: Article[] = [];
   loading = true;
   erreur = '';

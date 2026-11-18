@@ -45,7 +45,7 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `controller/` REST sous `/api/*` → `service/` (logique article/auth/fichiers) → `repository/` (Spring Data JPA) → `entity/`.
 - `dto/` : records Java (`XxxRequest` en entrée, `XxxDto`/`XxxResponse` en sortie avec `from(entity)`).
 - Schéma géré **uniquement par Flyway** (`src/main/resources/db/migration`, `ddl-auto: validate`).
-  Toute modif de schéma = nouvelle migration `V3__...sql`, ne jamais éditer V1/V2.
+  Toute modif de schéma = nouvelle migration (`V5__...sql` pour la prochaine), ne jamais éditer une migration déjà appliquée.
 - Sécurité : JWT stateless (`security/JwtUtil`, `JwtAuthenticationFilter`), règles d'URL dans
   `config/SecurityConfig`, droits fins via `@PreAuthorize` sur chaque méthode de contrôleur.
   Rôles : `admin`, `journaliste`, `redacteur`, `lecteur` (table `roles`, authorities `ROLE_XXX`).
@@ -78,6 +78,9 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   Tout accès à un article par son id passe par `ArticleService.getVisibleOrThrow(id, utilisateur)`.
 - `GET /api/commentaires?articleId=X` est public (si l'article est visible) ; sans `articleId` : admin uniquement.
   On ne peut commenter qu'un article visible.
+- Newsletter (`newsletter_inscriptions`, migration V4, distincte de `abonnements` = formules payantes) :
+  `POST /api/newsletter` public et **idempotent** (même réponse 200 si l'email existe déjà : pas de fuite
+  « cet email est inscrit », pas de doublon ; email normalisé trim + minuscules) ; liste/suppression admin.
 - Un seul article « en vedette » à la fois (`ArticleService.retirerVedetteDesAutres`).
 - `open-in-view: false` : une relation `LAZY` lue dans un DTO hors transaction plante
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.

@@ -14,11 +14,16 @@
       <li class="nav-item">
         <button class="nav-link" [class.active]="onglet === 'utilisateurs'" (click)="onglet = 'utilisateurs'; showForm = false">Utilisateurs</button>
       </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="onglet === 'newsletter'" (click)="onglet = 'newsletter'; showForm = false">Newsletter</button>
+      </li>
     </ul>
   }
 
   @if (onglet === 'utilisateurs') {
     <app-dashboard-utilisateurs></app-dashboard-utilisateurs>
+  } @else if (onglet === 'newsletter') {
+    <app-dashboard-newsletter></app-dashboard-newsletter>
   } @else if (showForm) {
     <app-dashboard-article-form
       [article]="articleEnEdition"
