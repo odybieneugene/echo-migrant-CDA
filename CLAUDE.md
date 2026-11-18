@@ -36,6 +36,9 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - **PC à 8 Go de RAM, souvent saturé** : les serveurs lancés en arrière-plan par Claude Code
   peuvent être tués faute de mémoire. Limiter le heap si besoin :
   `mvn spring-boot:run "-Dspring-boot.run.jvmArguments=-Xmx384m"`.
+- Le port **8090** est pris par un autre programme du PC (il répond 501) : choisir un autre port pour tout test ponctuel.
+- Arrêter un serveur **uniquement par son PID** (port en écoute → PID → `Stop-Process`), jamais avec un filtre large
+  (`taskkill /FI ...`) : ça peut tuer `ng serve`, le backend de dev ou d'autres programmes.
 - Si `ng` est introuvable ou que des types `@angular/*` manquent : `node_modules` est corrompu,
   le supprimer et faire `npm ci`.
 
@@ -62,6 +65,11 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   Erreurs du client (JSON invalide, id non numérique, route inconnue…) → 4xx explicites ; le 500 générique
   loggue l'exception et ne renvoie **jamais** son message (pas de fuite de détails internes).
 - `config/DataInitializer` crée l'admin par défaut s'il n'en existe aucun.
+- **Profil `prod`** (`SPRING_PROFILES_ACTIVE=prod`, `application-prod.yml`) : aucun secret n'a de valeur par défaut
+  (variable manquante → l'appli ne démarre pas) et `config/ProductionConfigValidator` refuse les secrets faibles ou
+  de dev (JWT < 32 caractères ou contenant « changeme », mot de passe admin < 12 ou connu, `DB_PASSWORD` connu).
+  Les `@Value` n'ont pas de valeur par défaut dans le code : les défauts de dev sont **uniquement** dans `application.yml`.
+  En prod `UPLOADS_BASE_URL` est vide → URLs d'images relatives (`/uploads/...`) servies via nginx.
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 
 ### Frontend (`frontend/`, Angular 18 standalone + Bootstrap)
@@ -70,7 +78,8 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - Token + utilisateur stockés dans `localStorage` (`echo_migrant_token`, `echo_migrant_user`).
   Token expiré supprimé au démarrage (`AuthService.isExpired`) ; un 401 de l'API déconnecte et renvoie vers `/login?session=expiree`.
 - `app.config.ts` enregistre la locale `fr-FR` (sans elle, les pipes `date` plantent : NG0701).
-- URL de l'API : `src/environments/environment*.ts`.
+- URL de l'API : `environment.ts` = prod (`/api`, relatif, derrière nginx) ; `environment.development.ts` = dev
+  (`http://localhost:8081/api`), substitué par `fileReplacements` (angular.json). Aucun `localhost` ailleurs dans le code.
 
 ## Règles métier et pièges du code
 - `GET /api/articles/{id}` (public) : un brouillon ou un article sans statut renvoie 404, sauf pour

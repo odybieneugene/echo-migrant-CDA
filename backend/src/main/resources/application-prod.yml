@@ -1,0 +1,41 @@
+# Profil de production : activé par SPRING_PROFILES_ACTIVE=prod (voir docker-compose.prod.yml).
+# Complète application.yml en retirant TOUTES les valeurs par défaut des secrets :
+# une variable manquante empêche le démarrage ("Could not resolve placeholder ...")
+# au lieu de lancer l'application avec un secret de développement publié sur GitHub.
+# ProductionConfigValidator refuse en plus les valeurs faibles ou connues.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  # Derrière un reverse proxy (nginx) : prendre en compte X-Forwarded-Proto/Host (HTTPS)
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+    include-stacktrace: never
+
+app:
+  cors:
+    # Front et API servis sur le même domaine via nginx : CORS ne sert qu'en cas d'appel depuis un autre domaine
+    allowed-origins: ${CORS_ORIGINS}
+  jwt:
+    secret: ${JWT_SECRET}
+  uploads:
+    dir: ${UPLOADS_DIR:/app/uploads}
+    # Vide = URLs d'images relatives (/uploads/...), servies via le même domaine que le front
+    base-url: ${UPLOADS_BASE_URL:}
+  admin:
+    default-email: ${ADMIN_DEFAULT_EMAIL}
+    default-password: ${ADMIN_DEFAULT_PASSWORD}
+
+logging:
+  level:
+    com.echomigrant: INFO
+    org.springframework.security: WARN

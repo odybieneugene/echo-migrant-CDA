@@ -32,7 +32,7 @@ public class ArticleService {
     private final TagSeoRepository tagSeoRepository;
     private final FileStorageService fileStorageService;
 
-    @Value("${app.uploads.base-url:http://localhost:8081}")
+    @Value("${app.uploads.base-url}")
     private String uploadsBaseUrl;
 
     @Transactional(readOnly = true)

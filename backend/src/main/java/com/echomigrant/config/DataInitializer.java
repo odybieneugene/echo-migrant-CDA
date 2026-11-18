@@ -28,10 +28,10 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.admin.default-email:admin@echomigrant.local}")
+    @Value("${app.admin.default-email}")
     private String defaultAdminEmail;
 
-    @Value("${app.admin.default-password:ChangeMoi123!}")
+    @Value("${app.admin.default-password}")
     private String defaultAdminPassword;
 
     @Override
