@@ -107,6 +107,10 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - Newsletter (`newsletter_inscriptions`, migration V4, distincte de `abonnements` = formules payantes) :
   `POST /api/newsletter` public et **idempotent** (même réponse 200 si l'email existe déjà : pas de fuite
   « cet email est inscrit », pas de doublon ; email normalisé trim + minuscules) ; liste/suppression admin.
+- Droits sur les articles : admin et journaliste modifient tout et suppriment ; un **rédacteur** crée,
+  ne modifie que **ses** articles (`ArticleService.verifierDroitDeModification`, 403) et ne supprime pas.
+  Le dashboard masque les boutons selon les mêmes règles (`peutModifier`/`peutSupprimer`).
+- Comptes de démo (un par rôle, mot de passe `Demo2026!`) : `python scripts/demo/creer-comptes-demo.py` (rejouable).
 - Un seul article « en vedette » à la fois (`ArticleService.retirerVedetteDesAutres`).
 - `open-in-view: false` : une relation `LAZY` lue dans un DTO hors transaction plante
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.

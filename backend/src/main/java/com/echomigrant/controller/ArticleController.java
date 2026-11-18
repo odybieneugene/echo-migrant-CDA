@@ -55,9 +55,10 @@ public class ArticleController {
     public ArticleResponse update(
         @PathVariable Long id,
         @Valid @RequestPart("data") ArticleRequest request,
-        @RequestPart(value = "image", required = false) MultipartFile image
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @AuthenticationPrincipal Utilisateur utilisateur
     ) {
-        return articleService.update(id, request, image);
+        return articleService.update(id, request, image, utilisateur);
     }
 
     @DeleteMapping("/{id}")

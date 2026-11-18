@@ -8,6 +8,7 @@ import com.echomigrant.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,8 +97,9 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleResponse update(Long id, ArticleRequest request, MultipartFile image) {
+    public ArticleResponse update(Long id, ArticleRequest request, MultipartFile image, Utilisateur utilisateurConnecte) {
         Article article = getOrThrow(id);
+        verifierDroitDeModification(article, utilisateurConnecte);
         String ancienneImage = article.getImageCouverture();
 
         applyRequest(article, request);
@@ -112,6 +114,20 @@ public class ArticleService {
         }
 
         return ArticleResponse.from(articleRepository.save(article), uploadsBaseUrl);
+    }
+
+    /**
+     * Admin et journaliste modifient tous les articles ; un rédacteur seulement les siens.
+     * (getId() sur la relation LAZY ne déclenche pas de requête : l'id est connu du proxy.)
+     */
+    private void verifierDroitDeModification(Article article, Utilisateur utilisateur) {
+        if (utilisateur.hasRole(Role.ADMIN) || utilisateur.hasRole(Role.JOURNALISTE)) {
+            return;
+        }
+        Utilisateur auteur = article.getUtilisateur();
+        if (auteur == null || !auteur.getId().equals(utilisateur.getId())) {
+            throw new AccessDeniedException("Un rédacteur ne peut modifier que ses propres articles");
+        }
     }
 
     /**

@@ -20,6 +20,13 @@
     </ul>
   }
 
+  @if (erreurAction && onglet === 'articles') {
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      {{ erreurAction }}
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="erreurAction = ''"></button>
+    </div>
+  }
+
   @if (onglet === 'utilisateurs') {
     <app-dashboard-utilisateurs></app-dashboard-utilisateurs>
   } @else if (onglet === 'newsletter') {
@@ -68,8 +75,12 @@
               <td class="d-none d-lg-table-cell">{{ article.createdAt | date:'short':'':'fr-FR' }}</td>
               <td class="text-end">
                 <div class="d-flex flex-column flex-md-row justify-content-end gap-1">
-                  <button class="btn btn-sm btn-outline-primary" (click)="modifierArticle(article)">Modifier</button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="supprimerArticle(article)">Supprimer</button>
+                  @if (peutModifier(article)) {
+                    <button class="btn btn-sm btn-outline-primary" (click)="modifierArticle(article)">Modifier</button>
+                  }
+                  @if (peutSupprimer()) {
+                    <button class="btn btn-sm btn-outline-danger" (click)="supprimerArticle(article)">Supprimer</button>
+                  }
                 </div>
               </td>
             </tr>

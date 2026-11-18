@@ -18,6 +18,8 @@ export class DashboardComponent implements OnInit {
   articles: Article[] = [];
   loading = true;
   erreur = '';
+  /** Erreur d'enregistrement ou de suppression renvoyée par l'API. */
+  erreurAction = '';
   showForm = false;
   articleEnEdition: Article | null = null;
 
@@ -53,11 +55,25 @@ export class DashboardComponent implements OnInit {
     this.showForm = true;
   }
 
+  /** Mêmes règles que l'API : seuls admin et journaliste suppriment. */
+  peutSupprimer(): boolean {
+    return this.authService.hasAnyRole(['admin', 'journaliste']);
+  }
+
+  /** Mêmes règles que l'API : admin et journaliste modifient tout, un rédacteur seulement ses articles. */
+  peutModifier(article: Article): boolean {
+    return this.peutSupprimer() || article.auteurId === this.authService.currentUser()?.id;
+  }
+
   supprimerArticle(article: Article): void {
     if (!confirm(`Supprimer l'article "${article.titre}" ?`)) {
       return;
     }
-    this.articleService.delete(article.id).subscribe(() => this.chargerArticles());
+    this.erreurAction = '';
+    this.articleService.delete(article.id).subscribe({
+      next: () => this.chargerArticles(),
+      error: (err) => (this.erreurAction = this.messageErreur(err, 'La suppression a échoué.'))
+    });
   }
 
   onSave(event: { data: ArticleRequest; image: File | null }): void {
@@ -65,13 +81,25 @@ export class DashboardComponent implements OnInit {
       ? this.articleService.update(this.articleEnEdition.id, event.data, event.image)
       : this.articleService.create(event.data, event.image);
 
-    request$.subscribe(() => {
-      this.showForm = false;
-      this.chargerArticles();
+    this.erreurAction = '';
+    request$.subscribe({
+      next: () => {
+        this.showForm = false;
+        this.chargerArticles();
+      },
+      // Le formulaire reste ouvert : la saisie n'est pas perdue
+      error: (err) => (this.erreurAction = this.messageErreur(err, "L'enregistrement a échoué."))
     });
   }
 
   onCancel(): void {
     this.showForm = false;
+    this.erreurAction = '';
+  }
+
+  /** Message de l'API (ou détail des champs invalides), sinon message par défaut. */
+  private messageErreur(err: { error?: { message?: string; fieldErrors?: Record<string, string> } }, parDefaut: string): string {
+    const champs = err.error?.fieldErrors;
+    return champs ? Object.values(champs).join(' ') : (err.error?.message ?? parDefaut);
   }
 }
