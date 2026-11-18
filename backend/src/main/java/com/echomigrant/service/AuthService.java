@@ -2,11 +2,13 @@ package com.echomigrant.service;
 
 import com.echomigrant.dto.UtilisateurDto;
 import com.echomigrant.dto.auth.AuthResponse;
+import com.echomigrant.dto.auth.ChangementMotDePasseRequest;
 import com.echomigrant.dto.auth.LoginRequest;
 import com.echomigrant.dto.auth.RegisterRequest;
 import com.echomigrant.entity.Role;
 import com.echomigrant.entity.Utilisateur;
 import com.echomigrant.exception.BadRequestException;
+import com.echomigrant.exception.ResourceNotFoundException;
 import com.echomigrant.repository.RoleRepository;
 import com.echomigrant.repository.UtilisateurRepository;
 import com.echomigrant.security.JwtUtil;
@@ -71,5 +73,24 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(utilisateur.getEmail());
         return new AuthResponse(token, UtilisateurDto.from(utilisateur));
+    }
+
+    /**
+     * Vérifie le mot de passe actuel avant d'enregistrer le nouveau (haché en BCrypt).
+     * Erreur en 400 et non 401 : l'utilisateur est bien connecté, c'est sa saisie qui est fausse
+     * (et un 401 provoquerait sa déconnexion côté front).
+     */
+    @Transactional
+    public void changerMotDePasse(Long utilisateurId, ChangementMotDePasseRequest request) {
+        Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId)
+            .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+
+        if (!passwordEncoder.matches(request.motDePasseActuel(), utilisateur.getPassword())) {
+            throw new BadRequestException("Mot de passe actuel incorrect");
+        }
+        if (request.motDePasseActuel().equals(request.nouveauMotDePasse())) {
+            throw new BadRequestException("Le nouveau mot de passe doit être différent de l'actuel");
+        }
+        utilisateur.setPassword(passwordEncoder.encode(request.nouveauMotDePasse()));
     }
 }

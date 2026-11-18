@@ -24,7 +24,7 @@
       <ul class="navbar-nav">
         @if (authService.isLoggedIn()) {
           <li class="nav-item d-flex align-items-center gap-2">
-            <span class="navbar-text text-white-50">{{ authService.currentUser()?.prenom }}</span>
+            <a class="nav-link" routerLink="/mon-compte" routerLinkActive="active" title="Mon compte">👤 {{ authService.currentUser()?.prenom }}</a>
             <button class="btn btn-outline-light btn-sm" (click)="logout()">Déconnexion</button>
           </li>
         } @else {

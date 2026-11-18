@@ -1,0 +1,48 @@
+<div class="container py-5" style="max-width: 560px;">
+  <h1 class="mb-4">Mon compte</h1>
+
+  @if (authService.currentUser(); as user) {
+    <div class="card mb-4">
+      <div class="card-body">
+        <p class="mb-1"><strong>{{ user.prenom }} {{ user.nom }}</strong></p>
+        <p class="mb-1 text-muted">{{ user.email }}</p>
+        <p class="mb-0">
+          @for (role of user.roles; track role) {
+            <span class="badge bg-secondary me-1">{{ libellesRoles[role] || role }}</span>
+          }
+        </p>
+      </div>
+    </div>
+  }
+
+  <h2 class="h4 mb-3">Changer mon mot de passe</h2>
+
+  @if (succes) {
+    <div class="alert alert-success">Votre mot de passe a été modifié.</div>
+  }
+  @if (erreur) {
+    <div class="alert alert-danger">{{ erreur }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="enregistrer()" novalidate>
+    <div class="mb-3">
+      <label class="form-label" for="actuel">Mot de passe actuel</label>
+      <input id="actuel" type="password" class="form-control" formControlName="motDePasseActuel" autocomplete="current-password"
+             [class.is-invalid]="form.controls.motDePasseActuel.touched && form.controls.motDePasseActuel.invalid">
+      <div class="invalid-feedback">Obligatoire.</div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="nouveau">Nouveau mot de passe</label>
+      <input id="nouveau" type="password" class="form-control" formControlName="nouveauMotDePasse" autocomplete="new-password"
+             [class.is-invalid]="form.controls.nouveauMotDePasse.touched && form.controls.nouveauMotDePasse.invalid">
+      <div class="invalid-feedback">Au moins 6 caractères.</div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="confirmation">Confirmer le nouveau mot de passe</label>
+      <input id="confirmation" type="password" class="form-control" formControlName="confirmation" autocomplete="new-password"
+             [class.is-invalid]="form.controls.confirmation.touched && (form.controls.confirmation.invalid || form.hasError('confirmationDifferente'))">
+      <div class="invalid-feedback">Les deux mots de passe ne correspondent pas.</div>
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="loading">Enregistrer</button>
+  </form>
+</div>

@@ -53,6 +53,9 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   (un test d'intégration le vérifie) — ne jamais laisser le client choisir son rôle.
   Seul l'admin change les rôles (`PUT /api/utilisateurs/{id}/roles`, onglet « Utilisateurs » du dashboard) ;
   `UtilisateurService` empêche de retirer son propre rôle admin, de supprimer son compte, et garde au moins un admin.
+- `/api/auth/**` est `permitAll` dans `SecurityConfig` : toute route de `AuthController` qui exige d'être connecté
+  (`/me`, `PUT /password`) doit porter `@PreAuthorize("isAuthenticated()")`, sinon l'utilisateur injecté est null (500).
+  Changement de mot de passe : mot de passe actuel vérifié, erreur en **400** (un 401 déconnecterait le front).
 - `exception/GlobalExceptionHandler` : erreurs JSON `ApiError` ; accès refusé → 401 si anonyme, 403 si connecté.
   Pour refuser un accès dans le code (ex. « pas votre ressource »), lever `AccessDeniedException("message")` :
   jamais `BadRequestException` ni `ResponseEntity.status(403)` sans corps.
@@ -62,7 +65,7 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 
 ### Frontend (`frontend/`, Angular 18 standalone + Bootstrap)
-- `src/app/pages/` : home, actualites, article-detail, login, dashboard (protégé par `roleGuard` : admin/journaliste/redacteur).
+- `src/app/pages/` : home, actualites, article-detail, login, mon-compte (`authGuard` : connecté), dashboard (protégé par `roleGuard` : admin/journaliste/redacteur).
 - `src/app/core/` : `services/` (appels API), `guards/`, `interceptors/auth.interceptor.ts` (ajoute le Bearer token), `models/models.ts`.
 - Token + utilisateur stockés dans `localStorage` (`echo_migrant_token`, `echo_migrant_user`).
   Token expiré supprimé au démarrage (`AuthService.isExpired`) ; un 401 de l'API déconnecte et renvoie vers `/login?session=expiree`.

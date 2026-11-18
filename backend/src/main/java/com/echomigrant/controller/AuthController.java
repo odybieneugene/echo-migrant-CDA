@@ -2,6 +2,7 @@ package com.echomigrant.controller;
 
 import com.echomigrant.dto.UtilisateurDto;
 import com.echomigrant.dto.auth.AuthResponse;
+import com.echomigrant.dto.auth.ChangementMotDePasseRequest;
 import com.echomigrant.dto.auth.LoginRequest;
 import com.echomigrant.dto.auth.RegisterRequest;
 import com.echomigrant.entity.Utilisateur;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +32,19 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    // /api/auth/** est public dans SecurityConfig (register, login) : les routes qui exigent
+    // d'être connecté le déclarent ici, sinon un anonyme arriverait avec un utilisateur null.
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UtilisateurDto> me(@AuthenticationPrincipal Utilisateur utilisateur) {
         return ResponseEntity.ok(UtilisateurDto.from(utilisateur));
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> changerMotDePasse(@Valid @RequestBody ChangementMotDePasseRequest request,
+                                                  @AuthenticationPrincipal Utilisateur utilisateur) {
+        authService.changerMotDePasse(utilisateur.getId(), request);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -28,6 +28,10 @@ export class AuthService {
       .pipe(tap((res) => this.setSession(res)));
   }
 
+  changerMotDePasse(motDePasseActuel: string, nouveauMotDePasse: string): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/auth/password`, { motDePasseActuel, nouveauMotDePasse });
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
