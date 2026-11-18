@@ -25,6 +25,8 @@
         <lombok.version>1.18.48</lombok.version>
         <!-- Depuis JDK 23, javac n'exécute plus les annotation processors (Lombok) sans -proc:full -->
         <maven.compiler.proc>full</maven.compiler.proc>
+        <!-- Byte Buddy (utilisé par Mockito) ne supporte pas encore officiellement JDK 26 -->
+        <argLine>-Dnet.bytebuddy.experimental=true</argLine>
     </properties>
 
     <dependencies>

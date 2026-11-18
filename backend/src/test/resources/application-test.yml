@@ -8,6 +8,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+    # Exécute test-data.sql après la création des tables par Hibernate
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:test-data.sql
   flyway:
     enabled: false
 

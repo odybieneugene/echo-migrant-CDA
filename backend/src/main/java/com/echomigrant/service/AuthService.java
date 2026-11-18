@@ -43,10 +43,9 @@ public class AuthService {
         utilisateur.setEmail(request.email());
         utilisateur.setPassword(passwordEncoder.encode(request.password()));
 
-        String roleName = (request.role() == null || request.role().isBlank()) ? Role.LECTEUR : request.role();
-        Role role = roleRepository.findByNomIgnoreCase(roleName)
-            .orElseGet(() -> roleRepository.findByNomIgnoreCase(Role.LECTEUR)
-                .orElseThrow(() -> new IllegalStateException("Rôle par défaut 'lecteur' manquant en base")));
+        // Toujours "lecteur" : seul un admin peut attribuer un rôle éditorial ou admin.
+        Role role = roleRepository.findByNomIgnoreCase(Role.LECTEUR)
+            .orElseThrow(() -> new IllegalStateException("Rôle par défaut 'lecteur' manquant en base"));
 
         Set<Role> roles = new HashSet<>();
         roles.add(role);

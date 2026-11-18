@@ -65,6 +65,24 @@ class EchoMigrantAuthFlowIntegrationTest {
     }
 
     @Test
+    void registerIgnoresRoleSentByClient_userIsAlwaysLecteur() throws Exception {
+        Map<String, String> payload = Map.of(
+            "nom", "Pirate",
+            "prenom", "Test",
+            "email", "pirate@example.com",
+            "password", "motdepasse123",
+            "role", "admin"
+        );
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(payload)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.user.roles.length()").value(1))
+            .andExpect(jsonPath("$.user.roles[0]").value("lecteur"));
+    }
+
+    @Test
     void publicArticlesEndpointIsAccessibleWithoutAuth() throws Exception {
         mockMvc.perform(get("/api/articles"))
             .andExpect(status().isOk());

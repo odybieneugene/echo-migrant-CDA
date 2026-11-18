@@ -45,7 +45,7 @@ class AuthServiceTest {
 
     @Test
     void register_createsUserWithDefaultRole_andReturnsToken() {
-        RegisterRequest request = new RegisterRequest("Bien Eugene", "Ody", "ody@example.com", "secret123", null);
+        RegisterRequest request = new RegisterRequest("Bien Eugene", "Ody", "ody@example.com", "secret123");
 
         when(utilisateurRepository.existsByEmail(request.email())).thenReturn(false);
         when(roleRepository.findByNomIgnoreCase(Role.LECTEUR)).thenReturn(Optional.of(lecteurRole));
@@ -67,7 +67,7 @@ class AuthServiceTest {
 
     @Test
     void register_rejectsDuplicateEmail() {
-        RegisterRequest request = new RegisterRequest("Nom", "Prenom", "existe@example.com", "secret123", null);
+        RegisterRequest request = new RegisterRequest("Nom", "Prenom", "existe@example.com", "secret123");
         when(utilisateurRepository.existsByEmail(request.email())).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(request))
