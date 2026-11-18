@@ -1,0 +1,12 @@
+<section class="container py-5">
+  <h2 class="mb-4">Articles récents</h2>
+  <div class="row g-4">
+    @for (article of articles; track article.id) {
+      <div class="col-12 col-md-6 col-lg-4">
+        <app-featured-article [article]="article"></app-featured-article>
+      </div>
+    } @empty {
+      <p class="text-muted">Aucun article publié pour le moment.</p>
+    }
+  </div>
+</section>

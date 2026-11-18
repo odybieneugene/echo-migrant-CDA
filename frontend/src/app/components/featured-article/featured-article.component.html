@@ -1,0 +1,11 @@
+<div class="card h-100 shadow-sm">
+  <img [src]="article.imageCouverture || 'https://picsum.photos/400/220'" class="card-img-top" alt="" style="height: 200px; object-fit: cover;">
+  <div class="card-body d-flex flex-column">
+    @if (article.categorie) {
+      <span class="badge bg-secondary align-self-start mb-2">{{ article.categorie.nom }}</span>
+    }
+    <h5 class="card-title">{{ article.titre }}</h5>
+    <p class="card-text text-muted flex-grow-1">{{ article.resume }}</p>
+    <a [routerLink]="['/actualites', article.id]" class="btn btn-sm btn-outline-primary align-self-start">Lire la suite</a>
+  </div>
+</div>

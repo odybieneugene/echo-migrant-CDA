@@ -1,0 +1,50 @@
+<div class="container py-5" style="max-width: 480px;">
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="mode === 'login'" (click)="switchMode('login')">Connexion</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="mode === 'register'" (click)="switchMode('register')">Créer un compte</button>
+    </li>
+  </ul>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+  }
+
+  @if (mode === 'login') {
+    <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" formControlName="email">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-control" formControlName="password">
+      </div>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="loading">Se connecter</button>
+    </form>
+  } @else {
+    <form [formGroup]="registerForm" (ngSubmit)="submitRegister()">
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label">Prénom</label>
+          <input type="text" class="form-control" formControlName="prenom">
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="nom">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" formControlName="email">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-control" formControlName="password">
+      </div>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="loading">Créer mon compte</button>
+    </form>
+  }
+</div>

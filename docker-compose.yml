@@ -1,0 +1,73 @@
+# Stack Java (Spring Boot + Angular + PostgreSQL) pour Echo Migrant.
+# Ports volontairement différents de la stack Laravel/React d'origine (docker-compose.yml à la racine)
+# pour pouvoir, si besoin, faire tourner les deux versions en parallèle (utile pour la démonstration
+# "avant / après" du rapport de stage).
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: echo_migrant_java_db
+    environment:
+      POSTGRES_DB: echo_migrant
+      POSTGRES_USER: echo_migrant
+      POSTGRES_PASSWORD: echo_migrant
+    ports:
+      - "5433:5432"
+    volumes:
+      - echo_migrant_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U echo_migrant"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: echo_migrant_java_backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: echo_migrant
+      DB_USER: echo_migrant
+      DB_PASSWORD: echo_migrant
+      CORS_ORIGINS: http://localhost:4300
+      JWT_SECRET: change-me-in-production-please-use-a-long-random-secret
+      SERVER_PORT: 8081
+      ADMIN_DEFAULT_EMAIL: admin@echomigrant.local
+      ADMIN_DEFAULT_PASSWORD: ChangeMoi123!
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - echo_migrant_uploads:/app/uploads
+
+  frontend:
+    image: node:20
+    container_name: echo_migrant_java_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npx ng serve --host 0.0.0.0 --port 4300"
+    ports:
+      - "4300:4300"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: echo_migrant_java_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@echomigrant.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+
+volumes:
+  echo_migrant_pg_data:
+  echo_migrant_uploads:

@@ -1,0 +1,17 @@
+@if (videos.length > 0) {
+  <section class="container py-5 bg-light rounded">
+    <h2 class="mb-4">Vidéos &amp; podcasts</h2>
+    <div class="row g-4">
+      @for (video of videos; track video.id) {
+        <div class="col-12 col-md-4">
+          <a [routerLink]="['/actualites', video.id]" class="text-decoration-none text-dark">
+            <div class="ratio ratio-16x9 mb-2 bg-dark rounded d-flex align-items-center justify-content-center text-white">
+              ▶
+            </div>
+            <h6>{{ video.titre }}</h6>
+          </a>
+        </div>
+      }
+    </div>
+  </section>
+}

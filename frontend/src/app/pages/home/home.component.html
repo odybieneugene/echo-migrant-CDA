@@ -1,0 +1,15 @@
+@if (loading) {
+  <div class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  @if (articleVedette) {
+    <app-hero-section [article]="articleVedette"></app-hero-section>
+  }
+
+  <app-recent-articles [articles]="autresArticles"></app-recent-articles>
+
+  <app-featured-videos [videos]="videos"></app-featured-videos>
+
+  <app-newsletter></app-newsletter>
+}

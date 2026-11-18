@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:echo_migrant_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-key-not-for-production-use-only-in-unit-tests-0123456789
+    expiration-ms: 3600000

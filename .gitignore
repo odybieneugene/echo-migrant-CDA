@@ -1,0 +1,17 @@
+# Backend (Maven / Java)
+backend/target/
+backend/uploads/
+*.class
+
+# Frontend (Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store

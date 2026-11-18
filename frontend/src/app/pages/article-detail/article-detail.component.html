@@ -1,0 +1,60 @@
+@if (loading) {
+  <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
+} @else if (article) {
+  <article class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        @if (article.categorie) {
+          <span class="badge bg-secondary mb-2">{{ article.categorie.nom }}</span>
+        }
+        <h1>{{ article.titre }}</h1>
+        <p class="text-muted">
+          Par {{ article.auteurNomComplet || 'Rédaction' }} · {{ article.createdAt | date:'longDate':'':'fr-FR' }}
+        </p>
+
+        @if (article.imageCouverture) {
+          <img [src]="article.imageCouverture" class="img-fluid rounded mb-4" alt="">
+        }
+
+        <p class="lead">{{ article.resume }}</p>
+        <div [innerHTML]="article.contenu"></div>
+
+        @if (article.tagsSeo.length > 0) {
+          <div class="mt-4 d-flex flex-wrap gap-2">
+            @for (tag of article.tagsSeo; track tag.id) {
+              <span class="badge bg-light text-dark border">#{{ tag.motCle }}</span>
+            }
+          </div>
+        }
+
+        <section class="mt-5">
+          <h4>Commentaires ({{ commentaires.length }})</h4>
+
+          @if (authService.isLoggedIn()) {
+            <form class="mb-4" (ngSubmit)="posterCommentaire()">
+              <textarea class="form-control mb-2" rows="3" placeholder="Votre commentaire..." [(ngModel)]="nouveauCommentaire" name="commentaire" required></textarea>
+              <button type="submit" class="btn btn-primary btn-sm">Publier</button>
+            </form>
+          } @else {
+            <p class="text-muted">Connectez-vous pour laisser un commentaire.</p>
+          }
+
+          @for (commentaire of commentaires; track commentaire.id) {
+            <div class="border-bottom py-2">
+              <strong>{{ commentaire.utilisateurNomComplet }}</strong>
+              <p class="mb-0">{{ commentaire.contenu }}</p>
+            </div>
+          }
+        </section>
+      </div>
+
+      <div class="col-lg-4">
+        <app-see-also [articles]="autresArticles"></app-see-also>
+      </div>
+    </div>
+  </article>
+} @else {
+  <div class="container py-5">
+    <p>Article introuvable.</p>
+  </div>
+}

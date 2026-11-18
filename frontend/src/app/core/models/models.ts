@@ -1,0 +1,68 @@
+export interface Utilisateur {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  roles: string[];
+}
+
+export interface AuthResponse {
+  token: string;
+  user: Utilisateur;
+}
+
+export interface NomDescription {
+  id: number;
+  nom: string;
+  description?: string;
+}
+
+export interface TagSeo {
+  id: number;
+  motCle: string;
+}
+
+export interface Article {
+  id: number;
+  titre: string;
+  resume?: string;
+  contenu?: string;
+  imageCouverture?: string;
+  metaTitre?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  estEnVedette: boolean;
+  categorie?: NomDescription;
+  typeArticle?: NomDescription;
+  format?: NomDescription;
+  statut?: NomDescription;
+  auteurId?: number;
+  auteurNomComplet?: string;
+  tagsSeo: TagSeo[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ArticleRequest {
+  titre: string;
+  resume?: string;
+  contenu?: string;
+  categorieId?: number;
+  typeArticleId?: number;
+  formatId?: number;
+  statutId?: number;
+  metaTitre?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  estEnVedette?: boolean;
+  tagSeoIds?: number[];
+}
+
+export interface Commentaire {
+  id: number;
+  contenu: string;
+  articleId: number;
+  utilisateurId: number;
+  utilisateurNomComplet: string;
+  createdAt: string;
+}

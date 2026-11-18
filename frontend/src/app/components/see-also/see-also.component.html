@@ -1,0 +1,12 @@
+@if (articles.length > 0) {
+  <aside class="mt-5">
+    <h5>À voir aussi</h5>
+    <ul class="list-unstyled">
+      @for (article of articles; track article.id) {
+        <li class="mb-2">
+          <a [routerLink]="['/actualites', article.id]">{{ article.titre }}</a>
+        </li>
+      }
+    </ul>
+  </aside>
+}

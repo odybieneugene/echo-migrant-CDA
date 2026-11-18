@@ -1,0 +1,13 @@
+<section class="hero text-white d-flex align-items-end"
+         [style.background-image]="'linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.65)), url(' + (article.imageCouverture || 'https://picsum.photos/1200/500') + ')'">
+  <div class="container py-5">
+    @if (article.categorie) {
+      <span class="badge mb-2" style="background-color: var(--em-accent);">{{ article.categorie.nom }}</span>
+    }
+    <h1 class="display-5 fw-bold">{{ article.titre }}</h1>
+    @if (article.resume) {
+      <p class="lead">{{ article.resume }}</p>
+    }
+    <a [routerLink]="['/actualites', article.id]" class="btn btn-light">Lire l'article</a>
+  </div>
+</section>
