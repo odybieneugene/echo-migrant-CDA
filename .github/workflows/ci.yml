@@ -1,0 +1,97 @@
+# Intégration continue : à chaque push et pull request, on vérifie que le projet se teste et se construit.
+# Trois jobs : backend et frontend en parallèle, puis les images Docker de production s'ils réussissent.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Un nouveau push annule la vérification encore en cours sur la même branche
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (tests Java 21)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 (version cible du projet)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Tests d'intégration sur H2 en mémoire (profil test) : aucune base à démarrer
+      - name: Tests et packaging
+        run: mvn -B verify
+
+      - name: Rapports de tests (en cas d'échec)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-tests-backend
+          path: backend/target/surefire-reports/
+
+  frontend:
+    name: Frontend (tests + build de production)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Dépendances (versions exactes du package-lock)
+        run: npm ci
+
+      - name: Tests unitaires
+        run: npx ng test --watch=false --browsers=ChromeHeadless --no-progress
+
+      - name: Build de production
+        run: npx ng build --configuration production
+
+      # Le build de production doit appeler l'API en relatif (/api via nginx), jamais localhost
+      - name: Aucune URL localhost dans le build
+        run: |
+          if grep -rq "localhost:8081" dist/frontend/browser; then
+            echo "::error::Le build de production contient localhost:8081 (voir src/environments)"
+            exit 1
+          fi
+
+  docker:
+    name: Images Docker de production
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fichier docker-compose.prod.yml valide
+        run: docker compose -f docker-compose.prod.yml --env-file .env.example config --quiet
+
+      - name: Image backend
+        run: docker build -t echo-migrant-backend:ci backend
+
+      - name: Image frontend (nginx)
+        run: docker build -t echo-migrant-frontend:ci frontend
+
+      - name: Configuration nginx valide
+        # nginx -t résout le nom "backend" : on le fait pointer vers la machine pour ce seul contrôle
+        run: docker run --rm --add-host backend:127.0.0.1 echo-migrant-frontend:ci nginx -t
