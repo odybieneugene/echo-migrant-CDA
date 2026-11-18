@@ -24,6 +24,11 @@ Tout lancer en Docker : `docker compose up --build` depuis ce dossier.
 
 Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 
+Données de démo : `scripts/demo/import-articles-laravel.sql` importe les 9 articles du projet
+Laravel d'origine (images dans `scripts/demo/images/`). Rejouable sans doublon ; mode d'emploi en tête du fichier.
+Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base MySQL d'origine
+(conteneur `echo_migrant_db`, port 3307, root/root) est normalement arrêtée.
+
 ### Pièges connus de cet environnement
 - **Seul JDK 26 est installé** (le projet cible Java 21). Le `pom.xml` contient donc :
   `lombok.version=1.18.48`, `maven.compiler.proc=full` (sinon Lombok ne tourne pas depuis JDK 23)
