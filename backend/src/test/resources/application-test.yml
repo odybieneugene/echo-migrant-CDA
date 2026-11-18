@@ -18,6 +18,8 @@ spring:
     enabled: false
 
 app:
+  uploads:
+    dir: target/test-uploads   # les images envoyées par les tests ne polluent pas backend/uploads
   jwt:
     secret: test-secret-key-not-for-production-use-only-in-unit-tests-0123456789
     expiration-ms: 3600000

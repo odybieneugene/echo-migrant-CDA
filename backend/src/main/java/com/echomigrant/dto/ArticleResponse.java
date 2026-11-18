@@ -33,7 +33,14 @@ public record ArticleResponse(
     /** uploadsBaseUrl : ex. "http://localhost:8081", pour obtenir une URL absolue utilisable par le frontend. */
     public static ArticleResponse from(Article a, String uploadsBaseUrl) {
         String image = a.getImageCouverture();
-        String imageUrl = (image == null || image.isBlank()) ? null : uploadsBaseUrl + "/uploads/" + image;
+        String imageUrl;
+        if (image == null || image.isBlank()) {
+            imageUrl = null;
+        } else if (image.startsWith("http://") || image.startsWith("https://")) {
+            imageUrl = image; // image externe (ex. Unsplash) : URL déjà complète
+        } else {
+            imageUrl = uploadsBaseUrl + "/uploads/" + image; // fichier envoyé, stocké dans uploads/
+        }
         return new ArticleResponse(
             a.getId(),
             a.getTitre(),

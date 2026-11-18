@@ -52,7 +52,9 @@ public class FileStorageService {
     }
 
     public void deleteImage(String relativePath) {
-        if (relativePath == null || relativePath.isBlank()) {
+        // Rien à supprimer pour une image externe ; et "https://..." n'est pas un chemin valide sous Windows
+        if (relativePath == null || relativePath.isBlank()
+            || relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
             return;
         }
         try {
