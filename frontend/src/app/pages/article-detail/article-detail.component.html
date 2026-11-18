@@ -17,7 +17,8 @@
         }
 
         <p class="lead">{{ article.resume }}</p>
-        <div [innerHTML]="article.contenu"></div>
+        <!-- Texte brut saisi dans le dashboard : interpolation (pas innerHTML), retours à la ligne conservés par .article-content -->
+        <div class="article-content">{{ article.contenu }}</div>
 
         @if (article.tagsSeo.length > 0) {
           <div class="mt-4 d-flex flex-wrap gap-2">

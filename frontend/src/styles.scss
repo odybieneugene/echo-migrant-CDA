@@ -8,3 +8,12 @@
 body {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+/* Corps d'un article : texte brut, chaque retour à la ligne saisi est conservé (paragraphes) */
+.article-content {
+  white-space: pre-line;
+  line-height: 1.8;
+  text-align: justify;
+  color: #212529;
+  margin-bottom: 3rem;
+}
