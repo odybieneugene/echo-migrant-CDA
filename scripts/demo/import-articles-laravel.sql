@@ -18,7 +18,9 @@
 --   * statut     : "publié" -> publie   |   format : "Articles texte" -> texte
 --   * type       : le seul type d'origine ("texte") n'existe pas ici -> laissé vide
 --   * images     : chemins images/xxx inchangés (fichiers dans scripts/demo/images),
---                  URL Unsplash conservées telles quelles
+--                  URL Unsplash conservées, sauf celle du reportage Méditerranée (photo d'un logo
+--                  Google, sans rapport) : retirée, l'article prend le visuel par défaut du site
+--   * corrections : "Voix en exil" est un podcast -> format podcast (il était en "texte" à l'origine)
 -- =====================================================================================
 
 BEGIN;
@@ -71,7 +73,7 @@ INSERT INTO articles (titre, meta_titre, meta_description, meta_keywords, resume
 SELECT E'Reportage : sur les routes des réfugiés en Méditerranée', NULL, NULL, NULL,
   E'Nos journalistes ont suivi les équipes humanitaires au large de la Sicile.',
   E'Plongée au cœur d’une mission de sauvetage, entre drames et espoirs sur les routes migratoires.',
-  'https://images.unsplash.com/photo-1529612700005-e35377bf1415?q=80&w=1200&auto=format&fit=crop',
+  NULL,
   (SELECT id FROM categories WHERE nom = 'Reportages'), NULL, (SELECT id FROM formats WHERE nom = 'texte'), (SELECT id FROM statuts WHERE nom = 'publie'),
   (SELECT ur.utilisateur_id FROM utilisateur_role ur JOIN roles r ON r.id = ur.role_id WHERE r.nom = 'admin' ORDER BY ur.utilisateur_id LIMIT 1),
   FALSE, '2025-10-21 09:09:05', '2025-11-13 09:09:46'
@@ -155,7 +157,7 @@ Chaque épisode de 20 minutes met en lumière un témoignage, souvent bouleversa
 Derrière ce projet : une volonté simple, celle de rendre visibles celles et ceux qu’on entend trop peu.
 Disponible sur Spotify, Deezer et Apple Podcasts, Voix en exil connaît déjà un succès croissant auprès d’un public jeune et engagé.',
   'images/ajlaQn1nz0i09DpLOcCfho4fb5w57aWM6xibqjtn.webp',
-  (SELECT id FROM categories WHERE nom = 'Actualités'), NULL, (SELECT id FROM formats WHERE nom = 'texte'), (SELECT id FROM statuts WHERE nom = 'publie'),
+  (SELECT id FROM categories WHERE nom = 'Actualités'), NULL, (SELECT id FROM formats WHERE nom = 'podcast'), (SELECT id FROM statuts WHERE nom = 'publie'),
   (SELECT ur.utilisateur_id FROM utilisateur_role ur JOIN roles r ON r.id = ur.role_id WHERE r.nom = 'admin' ORDER BY ur.utilisateur_id LIMIT 1),
   FALSE, '2025-11-13 09:26:23', '2025-11-13 09:26:23'
 WHERE NOT EXISTS (SELECT 1 FROM articles WHERE titre = E'« Voix en exil : le podcast qui redonne la parole aux oubliés »');
@@ -179,5 +181,12 @@ INSERT INTO article_tag_seo (article_id, tag_seo_id) SELECT a.id, t.id FROM arti
 INSERT INTO article_tag_seo (article_id, tag_seo_id) SELECT a.id, t.id FROM articles a, tag_seos t WHERE a.titre = E'« Voix en exil : le podcast qui redonne la parole aux oubliés »' AND t.mot_cle = 'intégration' ON CONFLICT DO NOTHING;
 INSERT INTO article_tag_seo (article_id, tag_seo_id) SELECT a.id, t.id FROM articles a, tag_seos t WHERE a.titre = E'« Le numérique au service de l’intégration : quand la tech facilite l’accueil des migrants »' AND t.mot_cle = 'intégration' ON CONFLICT DO NOTHING;
 INSERT INTO article_tag_seo (article_id, tag_seo_id) SELECT a.id, t.id FROM articles a, tag_seos t WHERE a.titre = E'« Le numérique au service de l’intégration : quand la tech facilite l’accueil des migrants »' AND t.mot_cle = 'témoignage' ON CONFLICT DO NOTHING;
+
+-- Corrections appliquées aussi à une base importée avant elles (sans effet si déjà faites)
+UPDATE articles SET format_id = (SELECT id FROM formats WHERE nom = 'podcast'), updated_at = now()
+WHERE titre = E'« Voix en exil : le podcast qui redonne la parole aux oubliés »'
+  AND format_id IS DISTINCT FROM (SELECT id FROM formats WHERE nom = 'podcast');
+UPDATE articles SET image_couverture = NULL, updated_at = now()
+WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1529612700005-%';
 
 COMMIT;
