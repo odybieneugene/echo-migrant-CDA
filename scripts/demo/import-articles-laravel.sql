@@ -18,8 +18,11 @@
 --   * statut     : "publié" -> publie   |   format : "Articles texte" -> texte
 --   * type       : le seul type d'origine ("texte") n'existe pas ici -> laissé vide
 --   * images     : chemins images/xxx inchangés (fichiers dans scripts/demo/images),
---                  URL Unsplash conservées, sauf celle du reportage Méditerranée (photo d'un logo
---                  Google, sans rapport) : retirée, l'article prend le visuel par défaut du site
+--                  aucune image chargée depuis internet (démo possible hors ligne) :
+--                  - "Crise migratoire" : photo Unsplash (licence Unsplash, usage libre) téléchargée
+--                    dans images/unsplash-crise-migratoire.jpg
+--                  - "Familles réfugiées" (photo d'un plongeur en vacances) et reportage Méditerranée
+--                    (photo d'un logo Google) : images sans rapport retirées -> visuel par défaut du site
 --   * corrections : "Voix en exil" est un podcast -> format podcast (il était en "texte" à l'origine)
 -- =====================================================================================
 
@@ -53,7 +56,7 @@ Ali, ressortissant indien, décrit un travail sous pression constante de ses sup
 Titulaire d\'une carte de séjour d\'un an, Ali explique qu\'il lui était impossible de réagir ou de se défendre. "Ils nous menaçaient de nous licencier", dit-il. "Et nous, nous avions besoin de [cet emploi] pour renouveler nos papiers."
 
 "Pour obtenir une carte de séjour, le demandeur ou la demandeuse doit disposer d\'une autorisation de travail, délivrée par la préfecture à la demande de l\'employeur·e. Mais pour obtenir une autorisation de travail, le demandeur ou la demandeuse doit disposer d\'une carte de séjour. Sans surprise, ce cercle vicieux entraîne des violations des droits des travailleuses et travailleurs étrangers. Nombre de travailleuses et travailleurs n\'ont d\'autre choix que de supporter des conditions de travail difficiles et dangereuses", souligne Amnesty.',
-  'https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=1200&auto=format&fit=crop',
+  'images/unsplash-crise-migratoire.jpg',
   (SELECT id FROM categories WHERE nom = 'Actualités'), NULL, (SELECT id FROM formats WHERE nom = 'texte'), (SELECT id FROM statuts WHERE nom = 'publie'),
   (SELECT ur.utilisateur_id FROM utilisateur_role ur JOIN roles r ON r.id = ur.role_id WHERE r.nom = 'admin' ORDER BY ur.utilisateur_id LIMIT 1),
   TRUE, '2025-10-21 09:09:05', '2025-11-13 10:01:40'
@@ -63,7 +66,7 @@ INSERT INTO articles (titre, meta_titre, meta_description, meta_keywords, resume
 SELECT E'Familles réfugiées : parcours et défis humains', NULL, NULL, NULL,
   E'Un reportage exclusif sur les parcours de familles déplacées à travers l’Europe.',
   E'Entre frontières fermées et solidarité citoyenne, ce reportage met en lumière les défis humains derrière les chiffres.',
-  'https://images.unsplash.com/photo-1534081333815-ae5019106622?q=80&w=1200&auto=format&fit=crop',
+  NULL,
   (SELECT id FROM categories WHERE nom = 'Reportages'), NULL, (SELECT id FROM formats WHERE nom = 'texte'), (SELECT id FROM statuts WHERE nom = 'publie'),
   (SELECT ur.utilisateur_id FROM utilisateur_role ur JOIN roles r ON r.id = ur.role_id WHERE r.nom = 'admin' ORDER BY ur.utilisateur_id LIMIT 1),
   FALSE, '2025-10-21 09:09:05', '2025-11-13 08:42:08'
@@ -187,6 +190,9 @@ UPDATE articles SET format_id = (SELECT id FROM formats WHERE nom = 'podcast'), 
 WHERE titre = E'« Voix en exil : le podcast qui redonne la parole aux oubliés »'
   AND format_id IS DISTINCT FROM (SELECT id FROM formats WHERE nom = 'podcast');
 UPDATE articles SET image_couverture = NULL, updated_at = now()
-WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1529612700005-%';
+WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1529612700005-%'
+   OR image_couverture LIKE 'https://images.unsplash.com/photo-1534081333815-%';
+UPDATE articles SET image_couverture = 'images/unsplash-crise-migratoire.jpg', updated_at = now()
+WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1509099836639-%';
 
 COMMIT;
