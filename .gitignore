@@ -15,3 +15,8 @@ frontend/.angular/
 
 # OS
 .DS_Store
+
+# Secrets de production (modèle : .env.example)
+.env
+.env.*
+!.env.example

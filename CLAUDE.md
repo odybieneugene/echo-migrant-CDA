@@ -20,7 +20,11 @@ npx ng serve --port 4300
 ```
 
 Compte admin créé automatiquement au démarrage : `admin@echomigrant.local` / `ChangeMoi123!`.
-Tout lancer en Docker : `docker compose up --build` depuis ce dossier.
+Tout lancer en Docker (dev) : `docker compose up --build` depuis ce dossier.
+**Stack de production** : `cp .env.example .env` (vrais secrets), puis
+`docker compose -f docker-compose.prod.yml --env-file .env up -d --build` → site sur `HTTP_PORT` (80 par défaut).
+nginx (image `frontend/Dockerfile`, `frontend/nginx.conf`) sert l'Angular compilé et relaie `/api` et `/uploads`
+au backend ; base et backend ne sont pas exposés. `.env` n'est jamais commité (`.gitignore`).
 
 Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 
@@ -39,6 +43,12 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - Le port **8090** est pris par un autre programme du PC (il répond 501) : choisir un autre port pour tout test ponctuel.
 - Arrêter un serveur **uniquement par son PID** (port en écoute → PID → `Stop-Process`), jamais avec un filtre large
   (`taskkill /FI ...`) : ça peut tuer `ng serve`, le backend de dev ou d'autres programmes.
+- curl de Git Bash est un programme Windows : dans `-F "x=@fichier"`, utiliser un chemin **relatif** (un chemin
+  `/c/...` échoue avec « curl: (26) Failed to open/read local data »).
+- Secrets générés avec `openssl` sous Windows : la sortie se termine par `
+` → retirer `` (`tr -d '
+'`).
+  Le profil prod refuse désormais un secret contenant un caractère invisible.
 - Si `ng` est introuvable ou que des types `@angular/*` manquent : `node_modules` est corrompu,
   le supprimer et faire `npm ci`.
 
@@ -69,6 +79,7 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   (variable manquante → l'appli ne démarre pas) et `config/ProductionConfigValidator` refuse les secrets faibles ou
   de dev (JWT < 32 caractères ou contenant « changeme », mot de passe admin < 12 ou connu, `DB_PASSWORD` connu).
   Les `@Value` n'ont pas de valeur par défaut dans le code : les défauts de dev sont **uniquement** dans `application.yml`.
+  Il refuse aussi un secret contenant un caractère invisible (`` d'un `.env` au format Windows).
   En prod `UPLOADS_BASE_URL` est vide → URLs d'images relatives (`/uploads/...`) servies via nginx.
 - Images d'articles : upload multipart, stockées dans `uploads/` (`service/FileStorageService`).
 

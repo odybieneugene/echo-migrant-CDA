@@ -1,0 +1,65 @@
+# Stack de PRODUCTION d'Echo Migrant.
+#
+#   cp .env.example .env        # puis remplir .env avec de vrais secrets (voir les commentaires)
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# Différences avec docker-compose.yml (développement) :
+#   - backend en profil "prod" : refuse de démarrer si un secret manque ou est faible ;
+#   - frontend compilé et servi par nginx (pas de "ng serve") ; nginx relaie /api et /uploads au backend ;
+#   - seul nginx est exposé : la base et le backend ne sont pas joignables depuis l'extérieur ;
+#   - aucun secret dans ce fichier : tout vient de .env (non versionné) ;
+#   - redémarrage automatique des conteneurs, pas de pgAdmin.
+
+name: echo-migrant-prod
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?DB_NAME manquant dans .env}
+      POSTGRES_USER: ${DB_USER:?DB_USER manquant dans .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Pas de "ports:" : base accessible uniquement par le backend, sur le réseau interne Docker
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET manquant dans .env}
+      ADMIN_DEFAULT_EMAIL: ${ADMIN_DEFAULT_EMAIL:?ADMIN_DEFAULT_EMAIL manquant dans .env}
+      ADMIN_DEFAULT_PASSWORD: ${ADMIN_DEFAULT_PASSWORD:?ADMIN_DEFAULT_PASSWORD manquant dans .env}
+      CORS_ORIGINS: ${PUBLIC_URL:?PUBLIC_URL manquant dans .env}
+      UPLOADS_BASE_URL: ""
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Pas de "ports:" : joignable seulement via nginx (service frontend)
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      # Seul port ouvert. Derrière le reverse proxy HTTPS de l'hôte : HTTP_PORT=8080 par exemple
+      - "${HTTP_PORT:-80}:80"
+    depends_on:
+      - backend
+
+volumes:
+  pg_data:
+  uploads:

@@ -48,6 +48,12 @@ public class ProductionConfigValidator {
     static List<String> verifier(String jwtSecret, String adminPassword, String dbPassword) {
         List<String> problemes = new ArrayList<>();
 
+        // Cas vécu : secret généré ou .env enregistré sous Windows -> "\r" invisible dans la valeur.
+        // Le mot de passe admin enregistré contient alors ce caractère et personne ne peut se connecter.
+        signalerCaracteresInvisibles("JWT_SECRET", jwtSecret, problemes);
+        signalerCaracteresInvisibles("ADMIN_DEFAULT_PASSWORD", adminPassword, problemes);
+        signalerCaracteresInvisibles("DB_PASSWORD", dbPassword, problemes);
+
         if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < LONGUEUR_MIN_SECRET_JWT) {
             problemes.add("JWT_SECRET trop court (" + LONGUEUR_MIN_SECRET_JWT + " caractères minimum, ex. : openssl rand -base64 48)");
         }
@@ -67,5 +73,12 @@ public class ProductionConfigValidator {
             problemes.add("DB_PASSWORD est un mot de passe connu (valeur de développement)");
         }
         return problemes;
+    }
+
+    private static void signalerCaracteresInvisibles(String nom, String valeur, List<String> problemes) {
+        if (valeur.chars().anyMatch(Character::isISOControl) || !valeur.equals(valeur.strip())) {
+            problemes.add(nom + " contient un caractère invisible (espace en bord, retour chariot \\r, tabulation...) :"
+                + " fichier .env enregistré au format Windows ? Le convertir en fins de ligne LF");
+        }
     }
 }

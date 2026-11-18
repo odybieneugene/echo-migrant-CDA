@@ -31,6 +31,16 @@ class ProductionConfigValidatorTest {
     }
 
     @Test
+    void retourChariotInvisible_refuse() {
+        // Cas réel : secret généré avec openssl sous Windows, "\r" resté au milieu de la valeur
+        List<String> problemes = ProductionConfigValidator.verifier(SECRET_SOLIDE, "cXqnN92W02Ym745f\rAa1!", "Xk29!pqLm#v7\r");
+
+        assertThat(problemes).hasSize(2)
+            .anyMatch(p -> p.startsWith("ADMIN_DEFAULT_PASSWORD contient un caractère invisible"))
+            .anyMatch(p -> p.startsWith("DB_PASSWORD contient un caractère invisible"));
+    }
+
+    @Test
     void motDePasseAdminTropCourt_refuse() {
         assertThat(ProductionConfigValidator.verifier(SECRET_SOLIDE, "Court1!", "Xk29!pqLm#v7"))
             .singleElement().asString().startsWith("ADMIN_DEFAULT_PASSWORD trop court");
