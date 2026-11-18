@@ -2,11 +2,11 @@
 
 Reconstruction du projet **Echo Migrant** (journal numérique sur les questions migratoires, initialement en Laravel + React) avec une stack Java, pour le stage CDA à l'AFPA : **Spring Boot 3 / Java 21**, **Angular**, **PostgreSQL**.
 
-La version Laravel/React d'origine reste disponible à la racine du dépôt (`../src`) à titre de référence — rien n'y a été modifié.
+La version Laravel/React d'origine se trouve dans un dépôt séparé, conservé à titre de référence : [odybieneugene/echo-migrant](https://github.com/odybieneugene/echo-migrant).
 
 ## Démarrage rapide (Docker)
 
-Depuis ce dossier (`echo-migrant-java/`), avec Docker Desktop lancé :
+À la racine du dépôt, avec Docker Desktop lancé :
 
 ```bash
 docker compose up --build
@@ -28,12 +28,21 @@ Au premier démarrage, les migrations Flyway créent le schéma et les données 
 
 ## Démarrage sans Docker (développement)
 
-**Backend** (nécessite Java 21, Maven, et un PostgreSQL local sur le port 5432 avec une base `echo_migrant`) :
+**Base de données** : le plus simple est de ne lancer que le PostgreSQL du `docker-compose.yml` (port **5433**) :
+
+```bash
+docker compose up -d postgres
+```
+
+**Backend** (nécessite Java 21 ou plus récent et Maven) :
 
 ```bash
 cd backend
-mvn spring-boot:run
+DB_PORT=5433 mvn spring-boot:run        # Bash
+# $env:DB_PORT='5433'; mvn spring-boot:run   (PowerShell)
 ```
+
+Sans `DB_PORT`, le backend cherche un PostgreSQL local sur le port 5432 (base, utilisateur et mot de passe : `echo_migrant`).
 
 **Frontend** (nécessite Node 20+) :
 
@@ -52,6 +61,14 @@ mvn test
 
 Les tests d'intégration tournent sur une base H2 en mémoire (voir `src/test/resources/application-test.yml`), donc aucune base PostgreSQL n'est nécessaire pour les lancer.
 
+Ils couvrent l'authentification, la visibilité des articles (brouillons), les commentaires, les droits d'accès aux ressources (401 / 403), l'article « en vedette » et les images de couverture.
+
+## Données de démonstration
+
+Pour voir le site avec du vrai contenu, `scripts/demo/import-articles-laravel.sql` importe les 9 articles de la version Laravel d'origine (textes, catégories, tags SEO et images de couverture). Le script est rejouable sans créer de doublon ; le mode d'emploi est en tête du fichier.
+
+Ce ne sont pas des migrations Flyway : ces données de démo ne doivent pas être déployées en production.
+
 ## Points de vigilance corrigés par rapport à la version Laravel
 
 Pendant l'audit du projet Laravel d'origine avant la réécriture, plusieurs incohérences ont été identifiées et corrigées ici (voir aussi les commentaires en tête de `backend/src/main/resources/db/migration/V1__initial_schema.sql`) :
@@ -61,3 +78,16 @@ Pendant l'audit du projet Laravel d'origine avant la réécriture, plusieurs inc
 - nommage cohérent des tables (`medias`, `statuts`) ;
 - abonnement directement rattaché à l'utilisateur (1:N), la relation N:N redondante `souscrire` ayant été supprimée ;
 - ajout d'un mécanisme de création automatique du premier compte administrateur (identifié comme besoin dans le projet d'origine, mais jamais implémenté côté Laravel).
+
+## Corrections de sécurité et de fiabilité
+
+Un audit de la version Java a ensuite permis de corriger (chaque point est couvert par un test) :
+
+- **inscription** : le rôle envoyé par le client était appliqué, ce qui permettait de s'inscrire directement comme administrateur ; l'inscription publique donne désormais toujours le rôle `lecteur` ;
+- **brouillons** : un brouillon était lisible publiquement en devinant son identifiant ; il renvoie maintenant 404, sauf pour l'équipe éditoriale (prévisualisation) ;
+- **commentaires** : la liste renvoyait toujours une erreur 500 (relation chargée hors transaction) et n'était pas accessible aux visiteurs ; elle est maintenant publique pour les articles visibles, et la liste complète est réservée à l'admin ;
+- **codes d'erreur** : 401 pour un visiteur non connecté, 403 (avec un message JSON) pour un accès refusé, au lieu de 400 ou de réponses sans corps ;
+- **règle de sécurité inutile** : suppression d'un accès public sur une route `POST /api/utilisateurs` inexistante ;
+- **performances** : requêtes ciblées au lieu de charger des tables entières (`findAll()`) ;
+- **images externes** : les images de couverture en URL (ex. Unsplash) s'affichent correctement ;
+- **affichage des articles** : les paragraphes saisis dans le dashboard sont conservés.
