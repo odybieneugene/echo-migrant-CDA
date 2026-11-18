@@ -60,8 +60,10 @@ Tests (H2 en mémoire, pas besoin de PostgreSQL) : `cd backend; mvn test`.
 - Profil `test` : H2 mode PostgreSQL, Flyway désactivé, tables créées par Hibernate,
   rôles insérés par `src/test/resources/test-data.sql`.
 
+- `GET /api/articles/{id}` (public) : un brouillon ou un article sans statut renvoie 404, sauf pour
+  admin/journaliste/redacteur (prévisualisation). Les articles `archive` restent lisibles par lien direct.
+
 ## Problèmes connus non corrigés
-- `GET /api/articles/{id}` est public et renvoie aussi les **brouillons** (pas de filtre sur le statut).
 - `GET /api/commentaires` exige d'être connecté : un visiteur ne voit pas les commentaires.
 - `SecurityConfig` autorise `POST /api/utilisateurs` alors que cette route n'existe pas.
 - `AbonnementController.ensureOwnerOrAdmin` renvoie 400 au lieu de 403.

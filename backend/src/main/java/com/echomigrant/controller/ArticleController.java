@@ -36,8 +36,8 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public ArticleResponse show(@PathVariable Long id) {
-        return articleService.findById(id);
+    public ArticleResponse show(@PathVariable Long id, @AuthenticationPrincipal Utilisateur utilisateur) {
+        return articleService.findVisibleById(id, utilisateur);
     }
 
     @PostMapping(consumes = "multipart/form-data")

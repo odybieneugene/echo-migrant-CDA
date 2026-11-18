@@ -21,6 +21,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ArticleService {
 
+    /** Statuts lisibles par tout le monde via le lien direct (les archivés restent consultables). */
+    private static final Set<String> STATUTS_PUBLICS = Set.of("publie", "archive");
+
     private final ArticleRepository articleRepository;
     private final CategorieRepository categorieRepository;
     private final TypeArticleRepository typeArticleRepository;
@@ -43,9 +46,27 @@ public class ArticleService {
         return articleRepository.findAllByOrderByCreatedAtDesc().stream().map(a -> ArticleResponse.from(a, uploadsBaseUrl)).toList();
     }
 
+    /**
+     * Détail d'un article pour la route publique GET /api/articles/{id}.
+     * Un brouillon (ou un article sans statut) n'est visible que par l'équipe éditoriale ;
+     * pour les autres on répond 404, sans révéler que l'article existe.
+     */
     @Transactional(readOnly = true)
-    public ArticleResponse findById(Long id) {
-        return ArticleResponse.from(getOrThrow(id), uploadsBaseUrl);
+    public ArticleResponse findVisibleById(Long id, Utilisateur utilisateur) {
+        Article article = getOrThrow(id);
+        if (!estVisiblePubliquement(article) && !estEditorial(utilisateur)) {
+            throw ResourceNotFoundException.of("Article", id);
+        }
+        return ArticleResponse.from(article, uploadsBaseUrl);
+    }
+
+    private static boolean estVisiblePubliquement(Article article) {
+        return article.getStatut() != null && STATUTS_PUBLICS.contains(article.getStatut().getNom());
+    }
+
+    private static boolean estEditorial(Utilisateur utilisateur) {
+        return utilisateur != null
+            && (utilisateur.hasRole(Role.ADMIN) || utilisateur.hasRole(Role.JOURNALISTE) || utilisateur.hasRole(Role.REDACTEUR));
     }
 
     @Transactional
