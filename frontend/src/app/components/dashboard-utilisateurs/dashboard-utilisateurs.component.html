@@ -1,0 +1,57 @@
+@if (message) {
+  <div class="alert alert-{{ message.type }} alert-dismissible" role="alert">
+    {{ message.texte }}
+    <button type="button" class="btn-close" aria-label="Fermer" (click)="message = null"></button>
+  </div>
+}
+
+<p class="text-muted small">
+  L'inscription sur le site donne le rôle <strong>Lecteur</strong>. Seul un administrateur peut attribuer
+  les rôles éditoriaux (Rédacteur, Journaliste) ou Administrateur.
+</p>
+
+@if (loading) {
+  <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
+} @else {
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th style="min-width: 12rem">Rôle</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (utilisateur of utilisateurs; track utilisateur.id) {
+          <tr>
+            <td>
+              {{ utilisateur.prenom }} {{ utilisateur.nom }}
+              @if (estMoi(utilisateur)) { <span class="badge bg-info ms-1">vous</span> }
+            </td>
+            <td>{{ utilisateur.email }}</td>
+            <td>
+              <select class="form-select form-select-sm"
+                      [attr.aria-label]="'Rôle de ' + utilisateur.prenom + ' ' + utilisateur.nom"
+                      [disabled]="estMoi(utilisateur)"
+                      [value]="rolePrincipal(utilisateur)"
+                      (change)="changerRole(utilisateur, $any($event.target).value)">
+                @for (role of roles; track role.nom) {
+                  <option [value]="role.nom" [selected]="role.nom === rolePrincipal(utilisateur)">{{ role.libelle }}</option>
+                }
+              </select>
+            </td>
+            <td class="text-end">
+              @if (!estMoi(utilisateur)) {
+                <button class="btn btn-sm btn-outline-danger" (click)="supprimer(utilisateur)">Supprimer</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="text-center text-muted">Aucun utilisateur.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -11,4 +11,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
 
     // Requête "exists" en base, au lieu de charger tous les utilisateurs et leurs rôles
     boolean existsByRoles_NomIgnoreCase(String nomRole);
+
+    long countByRoles_NomIgnoreCase(String nomRole);
 }

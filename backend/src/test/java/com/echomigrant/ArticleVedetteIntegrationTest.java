@@ -72,8 +72,9 @@ class ArticleVedetteIntegrationTest {
     @Test
     void detectionDeLAdmin_parRequeteExists() {
         // Utilisé par DataInitializer au démarrage (remplace un findAll() de tous les utilisateurs)
+        // (base H2 partagée entre classes de test : on ne suppose rien sur les autres rôles)
         assertThat(utilisateurRepository.existsByRoles_NomIgnoreCase("admin")).isTrue();
-        assertThat(utilisateurRepository.existsByRoles_NomIgnoreCase("journaliste")).isFalse();
+        assertThat(utilisateurRepository.existsByRoles_NomIgnoreCase("role-inexistant")).isFalse();
     }
 
     private long creerArticle(String token, String titre, boolean enVedette) throws Exception {

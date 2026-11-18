@@ -4,16 +4,19 @@ import { Article, ArticleRequest } from '../../core/models/models';
 import { ArticleService } from '../../core/services/article.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardArticleFormComponent } from '../../components/dashboard-article-form/dashboard-article-form.component';
+import { DashboardUtilisateursComponent } from '../../components/dashboard-utilisateurs/dashboard-utilisateurs.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardArticleFormComponent],
+  imports: [CommonModule, DashboardArticleFormComponent, DashboardUtilisateursComponent],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
+  onglet: 'articles' | 'utilisateurs' = 'articles';
   articles: Article[] = [];
   loading = true;
+  erreur = '';
   showForm = false;
   articleEnEdition: Article | null = null;
 
@@ -25,12 +28,17 @@ export class DashboardComponent implements OnInit {
 
   chargerArticles(): void {
     this.loading = true;
+    this.erreur = '';
     this.articleService.getAllAdmin().subscribe({
       next: (articles) => {
         this.articles = articles;
         this.loading = false;
       },
-      error: () => (this.loading = false)
+      error: (err) => {
+        // Sans ce message, une erreur s'affichait comme "Aucun article pour le moment"
+        this.erreur = err.error?.message ?? 'Impossible de charger les articles.';
+        this.loading = false;
+      }
     });
   }
 

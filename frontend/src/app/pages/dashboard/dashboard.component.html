@@ -1,12 +1,25 @@
 <div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Dashboard éditorial</h1>
-    @if (!showForm) {
+    @if (onglet === 'articles' && !showForm) {
       <button class="btn btn-primary" (click)="nouvelArticle()">+ Nouvel article</button>
     }
   </div>
 
-  @if (showForm) {
+  @if (authService.hasRole('admin')) {
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="onglet === 'articles'" (click)="onglet = 'articles'">Articles</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="onglet === 'utilisateurs'" (click)="onglet = 'utilisateurs'; showForm = false">Utilisateurs</button>
+      </li>
+    </ul>
+  }
+
+  @if (onglet === 'utilisateurs') {
+    <app-dashboard-utilisateurs></app-dashboard-utilisateurs>
+  } @else if (showForm) {
     <app-dashboard-article-form
       [article]="articleEnEdition"
       (save)="onSave($event)"
@@ -14,6 +27,8 @@
     </app-dashboard-article-form>
   } @else if (loading) {
     <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
+  } @else if (erreur) {
+    <div class="alert alert-danger">{{ erreur }}</div>
   } @else {
     <div class="table-responsive">
       <table class="table align-middle">
