@@ -18,8 +18,8 @@
       <thead>
         <tr>
           <th>Nom</th>
-          <th>Email</th>
-          <th style="min-width: 12rem">Rôle</th>
+          <th class="d-none d-md-table-cell">Email</th>
+          <th>Rôle</th>
           <th></th>
         </tr>
       </thead>
@@ -29,8 +29,10 @@
             <td>
               {{ utilisateur.prenom }} {{ utilisateur.nom }}
               @if (estMoi(utilisateur)) { <span class="badge bg-info ms-1">vous</span> }
+              <!-- Sur téléphone, l'email passe sous le nom (colonne Email masquée) -->
+              <div class="d-md-none small text-muted text-break">{{ utilisateur.email }}</div>
             </td>
-            <td>{{ utilisateur.email }}</td>
+            <td class="d-none d-md-table-cell">{{ utilisateur.email }}</td>
             <td>
               <select class="form-select form-select-sm"
                       [attr.aria-label]="'Rôle de ' + utilisateur.prenom + ' ' + utilisateur.nom"

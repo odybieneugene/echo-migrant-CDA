@@ -40,28 +40,37 @@
         <thead>
           <tr>
             <th>Titre</th>
-            <th>Catégorie</th>
+            <!-- Sur téléphone, colonnes secondaires masquées : titre, statut et actions restent visibles -->
+            <th class="d-none d-md-table-cell">Catégorie</th>
             <th>Statut</th>
-            <th>Vedette</th>
-            <th>Créé le</th>
+            <th class="d-none d-md-table-cell">Vedette</th>
+            <th class="d-none d-lg-table-cell">Créé le</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @for (article of articles; track article.id) {
             <tr>
-              <td>{{ article.titre }}</td>
-              <td>{{ article.categorie?.nom || '—' }}</td>
+              <td>
+                {{ article.titre }}
+                <!-- Informations des colonnes masquées, rappelées sous le titre sur téléphone -->
+                <div class="d-md-none small text-muted">
+                  {{ article.categorie?.nom || '—' }}@if (article.estEnVedette) { · ⭐ en vedette }
+                </div>
+              </td>
+              <td class="d-none d-md-table-cell">{{ article.categorie?.nom || '—' }}</td>
               <td>
                 <span class="badge" [class.bg-success]="article.statut?.nom === 'publie'" [class.bg-secondary]="article.statut?.nom !== 'publie'">
                   {{ article.statut?.nom || '—' }}
                 </span>
               </td>
-              <td>{{ article.estEnVedette ? '⭐' : '' }}</td>
-              <td>{{ article.createdAt | date:'short':'':'fr-FR' }}</td>
+              <td class="d-none d-md-table-cell">{{ article.estEnVedette ? '⭐' : '' }}</td>
+              <td class="d-none d-lg-table-cell">{{ article.createdAt | date:'short':'':'fr-FR' }}</td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="modifierArticle(article)">Modifier</button>
-                <button class="btn btn-sm btn-outline-danger" (click)="supprimerArticle(article)">Supprimer</button>
+                <div class="d-flex flex-column flex-md-row justify-content-end gap-1">
+                  <button class="btn btn-sm btn-outline-primary" (click)="modifierArticle(article)">Modifier</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="supprimerArticle(article)">Supprimer</button>
+                </div>
               </td>
             </tr>
           } @empty {

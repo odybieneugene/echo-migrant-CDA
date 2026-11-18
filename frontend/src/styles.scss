@@ -16,4 +16,9 @@ body {
   text-align: justify;
   color: #212529;
   margin-bottom: 3rem;
+
+  // Sur écran étroit, la justification crée de grands espaces entre les mots : alignement à gauche
+  @media (max-width: 575.98px) {
+    text-align: left;
+  }
 }
