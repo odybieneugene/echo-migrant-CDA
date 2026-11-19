@@ -47,7 +47,6 @@
     <div class="col-md-3 mb-3">
       <label class="form-label">Statut</label>
       <select class="form-select" formControlName="statutId">
-        <option [ngValue]="null">—</option>
         @for (s of statuts; track s.id) {
           <option [ngValue]="s.id">{{ s.nom }}</option>
         }

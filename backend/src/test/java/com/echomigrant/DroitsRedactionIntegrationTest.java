@@ -71,6 +71,28 @@ class DroitsRedactionIntegrationTest {
             .andExpect(status().isNoContent());
     }
 
+    /**
+     * Un article créé sans statut était enregistré avec statut NULL : invisible du public comme un brouillon,
+     * mais affiché « — » dans le dashboard. Il doit être un vrai brouillon, et le rester après modification.
+     */
+    @Test
+    void articleCreeSansStatut_estUnBrouillon() throws Exception {
+        String admin = connecter("admin@echomigrant.local", "ChangeMoi123!");
+        String redacteur = compteAvecRole(admin, "redacteur");
+
+        String body = mockMvc.perform(multipart("/api/articles")
+                .file(partieData("Article sans statut choisi"))
+                .header("Authorization", "Bearer " + redacteur))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.statut.nom").value("brouillon"))
+            .andReturn().getResponse().getContentAsString();
+        Long id = objectMapper.readTree(body).get("id").asLong();
+
+        modifier(redacteur, id, "Toujours sans statut choisi")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statut.nom").value("brouillon"));
+    }
+
     // ---- utilitaires ----
 
     /** Inscrit un compte (lecteur), lui donne le rôle demandé via l'admin, puis renvoie son jeton. */

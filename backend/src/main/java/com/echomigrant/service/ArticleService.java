@@ -25,6 +25,9 @@ public class ArticleService {
     /** Statuts lisibles par tout le monde via le lien direct (les archivés restent consultables). */
     private static final Set<String> STATUTS_PUBLICS = Set.of("publie", "archive");
 
+    /** Statut donné à un article enregistré sans statut choisi. */
+    private static final String STATUT_PAR_DEFAUT = "brouillon";
+
     private final ArticleRepository articleRepository;
     private final CategorieRepository categorieRepository;
     private final TypeArticleRepository typeArticleRepository;
@@ -183,6 +186,11 @@ public class ArticleService {
         if (request.statutId() != null) {
             article.setStatut(statutRepository.findById(request.statutId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Statut", request.statutId())));
+        } else if (article.getStatut() == null) {
+            // Aucun statut choisi (création, ou ancien article resté sans statut) : c'est un brouillon.
+            // Sans ça l'article restait à NULL, invisible du public mais affiché « — » dans le dashboard.
+            article.setStatut(statutRepository.findByNomIgnoreCase(STATUT_PAR_DEFAUT)
+                .orElseThrow(() -> new IllegalStateException("Statut « " + STATUT_PAR_DEFAUT + " » absent de la base")));
         }
 
         if (request.tagSeoIds() != null) {

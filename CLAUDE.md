@@ -63,7 +63,7 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `controller/` REST sous `/api/*` → `service/` (logique article/auth/fichiers) → `repository/` (Spring Data JPA) → `entity/`.
 - `dto/` : records Java (`XxxRequest` en entrée, `XxxDto`/`XxxResponse` en sortie avec `from(entity)`).
 - Schéma géré **uniquement par Flyway** (`src/main/resources/db/migration`, `ddl-auto: validate`).
-  Toute modif de schéma = nouvelle migration (`V6__...sql` pour la prochaine), ne jamais éditer une migration déjà appliquée.
+  Toute modif de schéma = nouvelle migration (`V7__...sql` pour la prochaine), ne jamais éditer une migration déjà appliquée.
 - Sécurité : JWT stateless (`security/JwtUtil`, `JwtAuthenticationFilter`), règles d'URL dans
   `config/SecurityConfig`, droits fins via `@PreAuthorize` sur chaque méthode de contrôleur.
   Rôles : `admin`, `journaliste`, `redacteur`, `lecteur` (table `roles`, authorities `ROLE_XXX`).
@@ -105,6 +105,8 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `GET /api/articles/{id}` (public) : un brouillon ou un article sans statut renvoie 404, sauf pour
   admin/journaliste/redacteur (prévisualisation). Les articles `archive` restent lisibles par lien direct.
   Tout accès à un article par son id passe par `ArticleService.getVisibleOrThrow(id, utilisateur)`.
+- Un article a **toujours** un statut : enregistré sans `statutId` (création ou ancien article sans statut) il devient
+  `brouillon` (`ArticleService.applyRequest`, migration V6 pour les anciens) ; le formulaire du dashboard présélectionne brouillon.
 - `GET /api/commentaires?articleId=X` est public (si l'article est visible) ; sans `articleId` : admin uniquement.
   On ne peut commenter qu'un article visible.
 - Newsletter (`newsletter_inscriptions`, migration V4, distincte de `abonnements` = formules payantes) :

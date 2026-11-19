@@ -45,7 +45,13 @@ export class DashboardArticleFormComponent implements OnInit, OnChanges {
     this.referenceDataService.getCategories().subscribe((c) => (this.categories = c));
     this.referenceDataService.getTypesArticles().subscribe((t) => (this.typesArticles = t));
     this.referenceDataService.getFormats().subscribe((f) => (this.formats = f));
-    this.referenceDataService.getStatuts().subscribe((s) => (this.statuts = s));
+    this.referenceDataService.getStatuts().subscribe((s) => {
+      this.statuts = s;
+      // Les statuts arrivent après l'ouverture du formulaire : on présélectionne « brouillon » à ce moment-là.
+      if (this.form.controls.statutId.value === null) {
+        this.form.controls.statutId.setValue(this.idStatutBrouillon());
+      }
+    });
     this.referenceDataService.getTagsSeo().subscribe((t) => (this.tagsSeo = t));
     this.patchFromArticle();
   }
@@ -56,9 +62,14 @@ export class DashboardArticleFormComponent implements OnInit, OnChanges {
     }
   }
 
+  /** Un article a toujours un statut : « brouillon » par défaut (le backend applique la même règle). */
+  private idStatutBrouillon(): number | null {
+    return this.statuts.find((s) => s.nom === 'brouillon')?.id ?? null;
+  }
+
   private patchFromArticle(): void {
     if (!this.article) {
-      this.form.reset({ estEnVedette: false, tagSeoIds: [] });
+      this.form.reset({ estEnVedette: false, tagSeoIds: [], statutId: this.idStatutBrouillon() });
       return;
     }
     this.form.patchValue({
@@ -68,7 +79,7 @@ export class DashboardArticleFormComponent implements OnInit, OnChanges {
       categorieId: this.article.categorie?.id ?? null,
       typeArticleId: this.article.typeArticle?.id ?? null,
       formatId: this.article.format?.id ?? null,
-      statutId: this.article.statut?.id ?? null,
+      statutId: this.article.statut?.id ?? this.idStatutBrouillon(),
       metaTitre: this.article.metaTitre,
       metaDescription: this.article.metaDescription,
       metaKeywords: this.article.metaKeywords,
