@@ -77,7 +77,8 @@ Matrice des droits, vérifiée sur l'API le 18/11/2026 (codes HTTP) :
 
 **1. Visiteur (2 min)** — non connecté.
 - Accueil : article en vedette, derniers articles, podcasts et vidéos, newsletter.
-- *Actualités* : filtre par catégorie. Ouvrir un article.
+- Menu : rubriques *Actualités*, *Reportages*, *Enquêtes* (une catégorie chacune), loupe pour rechercher
+  (sans tenir compte des accents). Le filtre est dans l'adresse (`?categorie=…&q=…`) : le lien se partage. Ouvrir un article.
 - S'inscrire à la newsletter. Recommencer avec le même email : même message, sans doublon
   (on ne révèle pas si un email est déjà inscrit).
 - Réduire la fenêtre (ou ouvrir les outils de développement en mode téléphone) : menu hamburger, mise en page adaptée.
@@ -134,7 +135,7 @@ Matrice des droits, vérifiée sur l'API le 18/11/2026 (codes HTTP) :
 - `open-in-view: false` : pas de requête cachée hors transaction.
 
 **Tests et qualité**
-- 62 tests backend (intégration MockMvc sur une base H2, plus des tests unitaires), 7 tests front.
+- 63 tests backend (intégration MockMvc sur une base H2, plus des tests unitaires), 21 tests front.
 - La règle du projet : toute correction de bug est accompagnée d'un test qui échouait avant.
 - CI GitHub Actions à chaque push.
 
@@ -179,6 +180,13 @@ Non, et ce n'est pas le rôle du front. Le masquage sert l'ergonomie ; la sécur
 **Comment gérez-vous l'évolution de la base ?**
 Avec Flyway : chaque changement est un fichier `V5__...sql` versionné et appliqué automatiquement au
 démarrage. On ne modifie jamais une migration déjà appliquée. Hibernate ne fait que vérifier (`validate`).
+
+**Pourquoi le site n'est-il pas exactement la maquette ?**
+J'ai gardé la structure et les codes visuels de la maquette : rubriques du menu, police Oswald, rose `#E6007E`
+pour l'accent, étiquettes de rubrique, bandeau newsletter avec bouton jaune. Le seul écart volontaire est le
+fond **bleu marine** de la barre de menu et du pied de page, au lieu du blanc : ce bleu existe déjà dans la
+maquette (bandeau newsletter, `#1B2A49`), et l'utiliser en haut et en bas donne une page plus cohérente.
+Le rose n'est jamais posé en texte sur ce bleu, où le contraste serait insuffisant.
 
 **Vos tests tournent sur H2, pas PostgreSQL. Est-ce une limite ?**
 Oui : H2 en mode PostgreSQL couvre la logique, pas toutes les spécificités de PostgreSQL. Le schéma
