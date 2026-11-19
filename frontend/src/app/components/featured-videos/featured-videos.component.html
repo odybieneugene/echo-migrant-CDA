@@ -1,7 +1,7 @@
-<!-- Section masquée tant qu'aucun article publié n'a le format vidéo ou podcast -->
+<!-- Section « À voir » de la maquette, masquée tant qu'aucun article publié n'a le format vidéo ou podcast -->
 @if (videos.length > 0) {
   <section class="container py-5">
-    <h2 class="mb-4">Vidéos &amp; podcasts</h2>
+    <h2 class="em-etiquette">À voir</h2>
     <div class="row g-4">
       @for (video of videos; track video.id) {
         <div class="col-12 col-md-6 col-lg-4">
@@ -13,10 +13,10 @@
                       style="width: 64px; height: 64px;" aria-hidden="true">{{ video.format?.nom === 'podcast' ? '🎧' : '▶' }}</span>
               </div>
             </div>
-            <span class="badge mb-1" style="background-color: var(--em-accent);">
+            <span class="em-badge mb-1">
               {{ video.format?.nom === 'podcast' ? 'Podcast' : 'Vidéo' }}
             </span>
-            <h6>{{ video.titre }}</h6>
+            <h6 class="mt-1">{{ video.titre }}</h6>
           </a>
         </div>
       }

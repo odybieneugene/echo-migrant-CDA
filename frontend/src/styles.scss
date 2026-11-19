@@ -1,14 +1,153 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
+// Couleurs de la maquette. Le bleu marine sert à la barre de menu, au bandeau newsletter et au pied de page ;
+// le rose est l'accent (étiquettes, boutons d'action, rubrique courante). Jamais de texte rose sur le bleu :
+// contraste insuffisant.
 :root {
-  --em-primary: #1d3557;
-  --em-accent: #e63946;
-  --em-rose: #e6007e; // rose de la maquette (menu, boutons)
+  --em-primary: #1d3557;    // bleu marine (maquette : #1b2a49)
+  --em-rose: #e6007e;       // accent
+  --em-rose-fonce: #c4006b; // survol des éléments roses
+  --em-jaune: #f9c80e;      // bouton d'inscription à la newsletter
+  --em-fond: #f8f8f8;       // fond des pages
+  --em-texte: #111;
   --em-font-titres: "Oswald", "Arial Narrow", Arial, sans-serif;
+
+  // Liens : noirs comme dans la maquette, rose foncé au survol (contraste suffisant sur fond clair)
+  --bs-link-color: var(--em-texte);
+  --bs-link-color-rgb: 17, 17, 17;
+  --bs-link-hover-color: var(--em-rose-fonce);
+  --bs-link-hover-color-rgb: 196, 0, 107;
 }
 
 body {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--em-fond);
+  color: var(--em-texte);
+}
+
+h1, h2, h3, .h1, .h2, .h3 {
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+}
+
+/* ---- Boutons Bootstrap aux couleurs de la maquette (une seule fois ici, pas page par page) ---- */
+
+// Action principale : rose
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--em-rose);
+  --bs-btn-border-color: var(--em-rose);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--em-rose-fonce);
+  --bs-btn-hover-border-color: var(--em-rose-fonce);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--em-rose-fonce);
+  --bs-btn-active-border-color: var(--em-rose-fonce);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--em-rose);
+  --bs-btn-disabled-border-color: var(--em-rose);
+  --bs-btn-focus-shadow-rgb: 230, 0, 126;
+}
+
+// Action secondaire (« Lire la suite », « Modifier », filtres) : contour noir
+.btn-outline-primary {
+  --bs-btn-color: var(--em-texte);
+  --bs-btn-border-color: var(--em-texte);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--em-texte);
+  --bs-btn-hover-border-color: var(--em-texte);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--em-texte);
+  --bs-btn-active-border-color: var(--em-texte);
+  --bs-btn-disabled-color: var(--em-texte);
+  --bs-btn-disabled-border-color: var(--em-texte);
+  --bs-btn-focus-shadow-rgb: 17, 17, 17;
+}
+
+// Champs et cases à cocher : focus et état coché en rose plutôt qu'en bleu Bootstrap
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--em-rose);
+  box-shadow: 0 0 0 0.2rem rgba(230, 0, 126, 0.2);
+}
+
+.form-check-input:checked {
+  background-color: var(--em-rose);
+  border-color: var(--em-rose);
+}
+
+/* ---- Éléments de la maquette ---- */
+
+// Étiquette de rubrique : bloc rose, texte noir en majuscules (« À LA UNE », « À VOIR »)
+.em-etiquette {
+  display: inline-block;
+  background: var(--em-rose);
+  color: var(--em-texte);
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  padding: 0.4rem 2rem;
+  margin-bottom: 1.25rem;
+}
+
+// Catégorie d'un article (cartes, page article) : petite étiquette rose
+.em-badge {
+  display: inline-block;
+  background: var(--em-rose);
+  color: #fff;
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+}
+
+// Bouton jaune du bandeau newsletter (texte noir : contraste élevé sur le jaune)
+.em-btn-jaune {
+  --bs-btn-color: var(--em-texte);
+  --bs-btn-bg: var(--em-jaune);
+  --bs-btn-border-color: var(--em-jaune);
+  --bs-btn-hover-color: var(--em-texte);
+  --bs-btn-hover-bg: #e0b30c;
+  --bs-btn-hover-border-color: #e0b30c;
+  --bs-btn-active-color: var(--em-texte);
+  --bs-btn-active-bg: #e0b30c;
+  --bs-btn-active-border-color: #e0b30c;
+  --bs-btn-disabled-color: var(--em-texte);
+  --bs-btn-disabled-bg: var(--em-jaune);
+  --bs-btn-disabled-border-color: var(--em-jaune);
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+// Bandeau newsletter (bleu marine, titre en majuscules)
+.em-newsletter {
+  background: var(--em-primary);
+}
+
+.em-newsletter-titre {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  text-transform: uppercase;
+}
+
+.em-newsletter-sous-titre {
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+// Pied de page bleu marine terminé par la bande rose de la maquette
+.em-footer {
+  background: var(--em-primary);
+  border-bottom: 10px solid var(--em-rose);
 }
 
 /* Titre de page de la maquette (« ACTUALITÉS ») */

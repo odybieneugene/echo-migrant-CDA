@@ -1,20 +1,27 @@
-<section id="newsletter" class="py-5 text-white text-center" style="background-color: var(--em-accent);">
-  <div class="container">
-    <h3>Restez informé</h3>
-    <p>Recevez les dernières actualités sur les questions migratoires directement par email.</p>
+<!-- Bandeau de la maquette : bleu marine, titre en majuscules, bouton jaune -->
+<section id="newsletter" class="container py-5">
+  <div class="em-newsletter text-white rounded-3 px-4 py-4 px-lg-5">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-5">
+        <h2 class="em-newsletter-titre mb-0">Rejoins notre newsletter</h2>
+        <p class="em-newsletter-sous-titre mb-0">Recevez nos enquêtes et reportages, chaque semaine.</p>
+      </div>
 
-    @if (!submitted) {
-      <form #f="ngForm" class="d-flex justify-content-center gap-2 flex-wrap" (ngSubmit)="subscribe(f)" novalidate>
-        <input type="email" class="form-control w-auto" placeholder="Votre email" aria-label="Votre email"
-               [(ngModel)]="email" name="email" required email maxlength="255">
-        <button type="submit" class="btn btn-light" [disabled]="loading">S'abonner</button>
-      </form>
-      @if (erreur) {
-        <p class="mt-3 mb-0 fw-bold" role="alert">{{ erreur }}</p>
-      }
-      <p class="small mt-3 mb-0 opacity-75">Votre email sert uniquement à l'envoi de la newsletter. Il n'est jamais partagé.</p>
-    } @else {
-      <p class="fw-bold">Merci ! Vous êtes inscrit(e) à la newsletter.</p>
-    }
+      <div class="col-lg-7">
+        @if (!submitted) {
+          <form #f="ngForm" class="d-flex flex-column flex-sm-row gap-2" (ngSubmit)="subscribe(f)" novalidate>
+            <input type="email" class="form-control" placeholder="email@adresse.com" aria-label="Votre email"
+                   [(ngModel)]="email" name="email" required email maxlength="255">
+            <button type="submit" class="btn em-btn-jaune px-4 text-nowrap" [disabled]="loading">S’inscrire</button>
+          </form>
+          @if (erreur) {
+            <p class="mt-2 mb-0 fw-bold" role="alert">{{ erreur }}</p>
+          }
+          <p class="small mt-2 mb-0 opacity-75">Votre email sert uniquement à l'envoi de la newsletter. Il n'est jamais partagé.</p>
+        } @else {
+          <p class="fw-bold mb-0">Merci ! Vous êtes inscrit(e) à la newsletter.</p>
+        }
+      </div>
+    </div>
   </div>
 </section>

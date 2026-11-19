@@ -33,13 +33,13 @@
     <div class="row g-4">
       @for (article of articlesFiltres; track article.id) {
         <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
+          <div class="card h-100 border-0 shadow-sm">
             <img [src]="article.imageCouverture || imageParDefaut" class="card-img-top" style="height: 200px; object-fit: cover;" alt="">
             <div class="card-body d-flex flex-column">
               @if (article.categorie) {
-                <span class="badge bg-secondary align-self-start mb-2">{{ article.categorie.nom }}</span>
+                <span class="em-badge align-self-start mb-2">{{ article.categorie.nom }}</span>
               }
-              <h5 class="card-title">{{ article.titre }}</h5>
+              <h5 class="card-title fw-bold">{{ article.titre }}</h5>
               <p class="card-text text-muted flex-grow-1">{{ article.resume }}</p>
               <a [routerLink]="['/actualites', article.id]" class="btn btn-sm btn-outline-primary align-self-start">Lire la suite</a>
             </div>
