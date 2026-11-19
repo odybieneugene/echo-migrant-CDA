@@ -1,5 +1,17 @@
 <div class="container py-5">
-  <h1 class="mb-4">Actualités</h1>
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <h1 class="em-titre-page mb-0">{{ categorieCourante?.nom ?? 'Tous les articles' }}</h1>
+
+    <div class="em-champ-recherche" role="search">
+      <input #champRecherche id="recherche" type="search" class="form-control"
+             placeholder="Rechercher un article" aria-label="Rechercher un article"
+             [value]="recherche" (input)="rechercher(champRecherche.value)">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2.6"/>
+        <path d="M15.2 15.2L21 21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
 
   <div class="d-flex flex-wrap gap-2 mb-4">
     <button class="btn btn-sm" [class.btn-primary]="!categorieFiltre" [class.btn-outline-primary]="categorieFiltre" (click)="filtrerPar(null)">
@@ -34,7 +46,9 @@
           </div>
         </div>
       } @empty {
-        <p class="text-muted">Aucun article dans cette catégorie.</p>
+        <p class="text-muted">
+          {{ recherche ? 'Aucun article ne correspond à « ' + recherche + ' ».' : 'Aucun article dans cette catégorie.' }}
+        </p>
       }
     </div>
   }

@@ -1,38 +1,57 @@
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: var(--em-primary);">
+<nav class="navbar navbar-expand-lg navbar-dark em-navbar">
   <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/">🌍 Echo Migrant</a>
+    <a class="navbar-brand em-logo" routerLink="/" (click)="fermerMenu()" aria-label="Echo Migrant, accueil">
+      <img src="img/logo-main.png" alt="" width="34" height="44">
+      <span class="em-logo-texte"><span class="em-logo-echo">ECHO</span><span class="em-logo-migrant">MIGRANT</span></span>
+    </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+    <button class="navbar-toggler" type="button" (click)="menuOuvert = !menuOuvert"
+            aria-controls="navMenu" [attr.aria-expanded]="menuOuvert" aria-label="Ouvrir le menu">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/actualites" routerLinkActive="active">Actualités</a>
-        </li>
+    <div class="collapse navbar-collapse" id="navMenu" [class.show]="menuOuvert">
+      <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0 em-rubriques">
+        @for (entree of entreesMenu; track entree.libelle) {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="entree.lien" [queryParams]="entree.queryParams"
+               routerLinkActive="active" [routerLinkActiveOptions]="correspondanceExacte" (click)="fermerMenu()">
+              @if (entree.icone === 'lecture') {
+                <svg class="em-icone-lecture" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M10 8l6 4-6 4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+              }
+              {{ entree.libelle }}
+            </a>
+          </li>
+        }
         @if (authService.hasAnyRole(['admin','journaliste','redacteur'])) {
           <li class="nav-item">
-            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="fermerMenu()">Dashboard</a>
           </li>
         }
       </ul>
 
-      <ul class="navbar-nav">
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-lg-4 pb-3 pb-lg-0">
+        <a class="em-recherche" routerLink="/actualites" fragment="recherche" (click)="fermerMenu()"
+           title="Rechercher un article" aria-label="Rechercher un article">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2.6"/>
+            <path d="M15.2 15.2L21 21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+          </svg>
+        </a>
+
         @if (authService.isLoggedIn()) {
-          <li class="nav-item d-flex align-items-center gap-2">
-            <a class="nav-link" routerLink="/mon-compte" routerLinkActive="active" title="Mon compte">👤 {{ authService.currentUser()?.prenom }}</a>
-            <button class="btn btn-outline-light btn-sm" (click)="logout()">Déconnexion</button>
-          </li>
+          <a class="btn em-btn-contour" routerLink="/mon-compte" routerLinkActive="active" (click)="fermerMenu()" title="Mon compte">
+            👤 {{ authService.currentUser()?.prenom }}
+          </a>
+          <button class="btn btn-link em-deconnexion" type="button" (click)="logout()">Déconnexion</button>
         } @else {
-          <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm" routerLink="/login">Connexion</a>
-          </li>
+          <a class="btn em-btn-contour" routerLink="/login" (click)="fermerMenu()">Se connecter</a>
         }
-      </ul>
+        <button class="btn em-btn-rose" type="button" (click)="sAbonner()">S’abonner</button>
+      </div>
     </div>
   </div>
 </nav>

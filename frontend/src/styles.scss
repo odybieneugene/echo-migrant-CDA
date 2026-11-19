@@ -3,10 +3,48 @@
 :root {
   --em-primary: #1d3557;
   --em-accent: #e63946;
+  --em-rose: #e6007e; // rose de la maquette (menu, boutons)
+  --em-font-titres: "Oswald", "Arial Narrow", Arial, sans-serif;
 }
 
 body {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Titre de page de la maquette (« ACTUALITÉS ») */
+.em-titre-page {
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+/* Champ de recherche arrondi avec loupe à droite (maquette, page Actualités) */
+.em-champ-recherche {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+
+  input {
+    border: 2px solid #111;
+    border-radius: 2rem;
+    padding: 0.5rem 2.75rem 0.5rem 1.25rem;
+
+    &:focus {
+      border-color: var(--em-rose);
+      box-shadow: 0 0 0 0.2rem rgba(230, 0, 126, 0.2);
+    }
+  }
+
+  svg {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 }
 
 /* Corps d'un article : texte brut, chaque retour à la ligne saisi est conservé (paragraphes) */

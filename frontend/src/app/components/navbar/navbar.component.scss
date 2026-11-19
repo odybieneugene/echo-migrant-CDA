@@ -1,4 +1,155 @@
-.nav-link.active {
+// Barre de menu : structure de la maquette (rubriques séparées, police Oswald, rubrique courante en rose)
+// sur le fond bleu marine de la charte du site, comme le pied de page.
+
+// Rose clair pour le survol : le rose de la maquette (#e6007e) est trop peu contrasté en texte sur le bleu.
+$rose-survol: #ff8cc6;
+
+.em-navbar {
+  background: var(--em-primary);
+  font-family: var(--em-font-titres);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.em-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+
+  &:hover {
+    color: #fff;
+  }
+
+  img {
+    height: 44px;
+    width: auto;
+  }
+}
+
+// Texte du logo en deux lignes, comme dans la maquette (police sans empattement, pas Oswald)
+.em-logo-texte {
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.em-logo-echo {
+  font-size: 1.45rem;
+  letter-spacing: 0.02em;
+}
+
+.em-logo-migrant {
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+}
+
+.em-rubriques .nav-link {
+  color: #fff;
+  font-size: 1.15rem;
   font-weight: 600;
-  text-decoration: underline;
+  padding: 0.35rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &:hover,
+  &:focus {
+    color: $rose-survol;
+  }
+
+  &.active {
+    background: var(--em-rose);
+    color: #fff;
+  }
+}
+
+.em-icone-lecture {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.em-recherche {
+  color: #fff;
+  display: inline-flex;
+  padding: 0.25rem;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover {
+    color: $rose-survol;
+  }
+}
+
+.em-btn-contour,
+.em-btn-rose {
+  font-family: var(--em-font-titres);
+  font-weight: 600;
+  font-size: 1.05rem;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.8rem;
+}
+
+.em-btn-contour {
+  border: 1.5px solid #fff;
+  color: #fff;
+  background: transparent;
+
+  &:hover,
+  &.active {
+    background: #fff;
+    border-color: #fff;
+    color: var(--em-primary);
+  }
+}
+
+.em-btn-rose {
+  border: 1.5px solid var(--em-rose);
+  background: var(--em-rose);
+  color: #fff;
+
+  &:hover {
+    background: #c4006b;
+    border-color: #c4006b;
+    color: #fff;
+  }
+}
+
+.em-deconnexion {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+// Écran large : rubriques séparées par un trait vertical, comme dans la maquette
+@media (min-width: 992px) {
+  .em-rubriques .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0 0.6rem;
+    border-right: 1.5px solid rgba(255, 255, 255, 0.45);
+  }
+}
+
+// Téléphone : rubriques empilées, la rubrique courante garde son fond rose
+@media (max-width: 991.98px) {
+  .em-rubriques {
+    padding-top: 0.75rem;
+    gap: 0.25rem;
+  }
+
+  .em-rubriques .nav-link {
+    display: flex;
+  }
 }
