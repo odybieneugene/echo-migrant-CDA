@@ -2,6 +2,8 @@ package com.echomigrant.controller;
 
 import com.echomigrant.dto.ArticleRequest;
 import com.echomigrant.dto.ArticleResponse;
+import com.echomigrant.dto.PageResponse;
+import com.echomigrant.exception.BadRequestException;
 import com.echomigrant.entity.Utilisateur;
 import com.echomigrant.service.ArticleService;
 import jakarta.validation.Valid;
@@ -26,6 +28,24 @@ public class ArticleController {
     @GetMapping
     public List<ArticleResponse> index(@RequestParam(required = false) Integer limit) {
         return articleService.findPublies(limit);
+    }
+
+    /** Taille de page maximale : un client ne peut pas redemander toute la table d'un coup. */
+    private static final int TAILLE_MAX = 50;
+
+    // GET /api/articles/recherche?categorie=3&q=asile&page=0&taille=12 -> public, articles publiés page par page
+    @GetMapping("/recherche")
+    public PageResponse<ArticleResponse> rechercher(@RequestParam(required = false) Long categorie,
+                                                    @RequestParam(required = false) String q,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "12") int taille) {
+        if (page < 0) {
+            throw new BadRequestException("Le numéro de page commence à 0");
+        }
+        if (taille < 1 || taille > TAILLE_MAX) {
+            throw new BadRequestException("La taille de page doit être comprise entre 1 et " + TAILLE_MAX);
+        }
+        return articleService.rechercherPublies(categorie, q, page, taille);
     }
 
     // GET /api/articles/admin -> dashboard : tous les articles (brouillons + publiés)

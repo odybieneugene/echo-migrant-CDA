@@ -27,11 +27,21 @@
     }
   </div>
 
-  @if (loading) {
-    <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
+  @if (loading && articles.length === 0) {
+    <div class="text-center py-5"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement</span></div></div>
+  } @else if (erreur) {
+    <p class="text-danger">Les articles n'ont pas pu être chargés. Réessayez dans un instant.</p>
   } @else {
-    <div class="row g-4">
-      @for (article of articlesFiltres; track article.id) {
+    @if (totalArticles > 0) {
+      <p class="text-muted small mb-3" aria-live="polite">
+        {{ totalArticles }} article{{ totalArticles > 1 ? 's' : '' }}
+        @if (totalPages > 1) { · page {{ page }} sur {{ totalPages }} }
+      </p>
+    }
+
+    <!-- Pendant une nouvelle recherche, on garde les résultats précédents (atténués) plutôt qu'un clignotement -->
+    <div class="row g-4" [class.opacity-50]="loading">
+      @for (article of articles; track article.id) {
         <div class="col-12 col-md-6 col-lg-4">
           <div class="card h-100 border-0 shadow-sm">
             <img [src]="article.imageCouverture || imageParDefaut" class="card-img-top" style="height: 200px; object-fit: cover;" alt="">
@@ -46,10 +56,51 @@
           </div>
         </div>
       } @empty {
-        <p class="text-muted">
-          {{ recherche ? 'Aucun article ne correspond à « ' + recherche + ' ».' : 'Aucun article dans cette catégorie.' }}
-        </p>
+        <div class="col-12 text-muted">
+          @if (page > 1 && totalArticles > 0) {
+            Il n'y a pas de page {{ page }}.
+            <a [routerLink]="[]" [queryParams]="parametresPage(1)" queryParamsHandling="merge">Revenir à la première page</a>
+          } @else if (recherche.trim()) {
+            Aucun article ne correspond à « {{ recherche.trim() }} ».
+          } @else {
+            Aucun article dans cette catégorie.
+          }
+        </div>
       }
     </div>
+
+    @if (totalPages > 1) {
+      <nav class="mt-5" aria-label="Pages des articles">
+        <ul class="pagination em-pagination justify-content-center flex-wrap">
+          <li class="page-item" [class.disabled]="page <= 1">
+            @if (page > 1) {
+              <a class="page-link" [routerLink]="[]" [queryParams]="parametresPage(page - 1)" queryParamsHandling="merge"
+                 aria-label="Page précédente">&laquo;</a>
+            } @else {
+              <span class="page-link" aria-hidden="true">&laquo;</span>
+            }
+          </li>
+          @for (numero of pages; track $index) {
+            @if (numero === null) {
+              <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            } @else {
+              <li class="page-item" [class.active]="numero === page">
+                <a class="page-link" [routerLink]="[]" [queryParams]="parametresPage(numero)" queryParamsHandling="merge"
+                   [attr.aria-current]="numero === page ? 'page' : null"
+                   [attr.aria-label]="'Page ' + numero">{{ numero }}</a>
+              </li>
+            }
+          }
+          <li class="page-item" [class.disabled]="page >= totalPages">
+            @if (page < totalPages) {
+              <a class="page-link" [routerLink]="[]" [queryParams]="parametresPage(page + 1)" queryParamsHandling="merge"
+                 aria-label="Page suivante">&raquo;</a>
+            } @else {
+              <span class="page-link" aria-hidden="true">&raquo;</span>
+            }
+          </li>
+        </ul>
+      </nav>
+    }
   }
 </div>

@@ -135,7 +135,7 @@ Matrice des droits, vérifiée sur l'API le 18/11/2026 (codes HTTP) :
 - `open-in-view: false` : pas de requête cachée hors transaction.
 
 **Tests et qualité**
-- 63 tests backend (intégration MockMvc sur une base H2, plus des tests unitaires), 21 tests front.
+- 70 tests backend (intégration MockMvc sur une base H2, plus des tests unitaires), 24 tests front.
 - La règle du projet : toute correction de bug est accompagnée d'un test qui échouait avant.
 - CI GitHub Actions à chaque push.
 

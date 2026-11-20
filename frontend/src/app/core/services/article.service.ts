@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Article, ArticleRequest } from '../models/models';
+import { Article, ArticleRequest, CriteresRecherche, PageResponse } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class ArticleService {
@@ -13,6 +13,18 @@ export class ArticleService {
   getPublies(limit?: number): Observable<Article[]> {
     const params = limit ? { limit: String(limit) } : undefined;
     return this.http.get<Article[]>(this.baseUrl, { params });
+  }
+
+  /** Articles publiés page par page, filtrés côté serveur (catégorie, mots cherchés). */
+  rechercher(criteres: CriteresRecherche): Observable<PageResponse<Article>> {
+    let params = new HttpParams().set('page', criteres.page).set('taille', criteres.taille);
+    if (criteres.categorie) {
+      params = params.set('categorie', criteres.categorie);
+    }
+    if (criteres.q) {
+      params = params.set('q', criteres.q);
+    }
+    return this.http.get<PageResponse<Article>>(`${this.baseUrl}/recherche`, { params });
   }
 
   getAllAdmin(): Observable<Article[]> {

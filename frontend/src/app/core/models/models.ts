@@ -43,6 +43,23 @@ export interface Article {
   updatedAt: string;
 }
 
+/** Une page de résultats de l'API (`PageResponse` côté backend). `page` commence à 0. */
+export interface PageResponse<T> {
+  contenu: T[];
+  page: number;
+  taille: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+/** Critères de GET /api/articles/recherche. */
+export interface CriteresRecherche {
+  categorie?: number | null;
+  q?: string | null;
+  page: number;
+  taille: number;
+}
+
 export interface ArticleRequest {
   titre: string;
   resume?: string;

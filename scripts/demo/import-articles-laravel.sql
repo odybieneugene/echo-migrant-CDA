@@ -195,4 +195,11 @@ WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1529612700005-%'
 UPDATE articles SET image_couverture = 'images/unsplash-crise-migratoire.jpg', updated_at = now()
 WHERE image_couverture LIKE 'https://images.unsplash.com/photo-1509099836639-%';
 
+-- Texte de recherche (migration V7) : les INSERT ci-dessus ne passent pas par l'application,
+-- on le calcule comme elle (minuscules, sans accents). Sans effet sur les articles déjà à jour.
+UPDATE articles
+SET texte_recherche = translate(lower(titre || ' ' || coalesce(resume, '')),
+                                'àáâãäåçèéêëìíîïñòóôõöùúûüýÿ', 'aaaaaaceeeeiiiinooooouuuuyy')
+WHERE texte_recherche = '';
+
 COMMIT;

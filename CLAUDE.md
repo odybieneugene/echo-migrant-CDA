@@ -63,7 +63,7 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `controller/` REST sous `/api/*` → `service/` (logique article/auth/fichiers) → `repository/` (Spring Data JPA) → `entity/`.
 - `dto/` : records Java (`XxxRequest` en entrée, `XxxDto`/`XxxResponse` en sortie avec `from(entity)`).
 - Schéma géré **uniquement par Flyway** (`src/main/resources/db/migration`, `ddl-auto: validate`).
-  Toute modif de schéma = nouvelle migration (`V7__...sql` pour la prochaine), ne jamais éditer une migration déjà appliquée.
+  Toute modif de schéma = nouvelle migration (`V8__...sql` pour la prochaine), ne jamais éditer une migration déjà appliquée.
 - Sécurité : JWT stateless (`security/JwtUtil`, `JwtAuthenticationFilter`), règles d'URL dans
   `config/SecurityConfig`, droits fins via `@PreAuthorize` sur chaque méthode de contrôleur.
   Rôles : `admin`, `journaliste`, `redacteur`, `lecteur` (table `roles`, authorities `ROLE_XXX`).
@@ -93,7 +93,9 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
 - `src/app/pages/` : home, actualites, article-detail, login, mon-compte (`authGuard` : connecté), dashboard (protégé par `roleGuard` : admin/journaliste/redacteur).
 - Menu (`components/navbar`) : « À la Une » + rubriques Actualités / Reportages / Enquêtes, chacune liée à la catégorie
   **du même nom** (garanties par `V5__categories_du_menu.sql`) : ne pas renommer ces catégories en base. Catégorie absente →
-  la rubrique mène à tous les articles. Page `actualites` : filtres `?categorie=ID` et `?q=texte` lus depuis l'URL.
+  la rubrique mène à tous les articles. Page `actualites` : filtres `?categorie=ID`, `?q=texte` et `?page=N` (à partir de 1) lus depuis l'URL,
+  envoyés à `GET /api/articles/recherche` (public, `page` à partir de 0, `taille` 1–50, réponse `PageResponse`) :
+  filtrage et pagination côté serveur.
 - `src/app/core/` : `services/` (appels API), `guards/`, `interceptors/auth.interceptor.ts` (ajoute le Bearer token), `models/models.ts`.
 - Token + utilisateur stockés dans `localStorage` (`echo_migrant_token`, `echo_migrant_user`).
   Token expiré supprimé au démarrage (`AuthService.isExpired`) ; un 401 de l'API déconnecte et renvoie vers `/login?session=expiree`.
@@ -116,6 +118,9 @@ Ce n'est pas une migration Flyway (contenu de démo, pas pour la prod). La base 
   ne modifie que **ses** articles (`ArticleService.verifierDroitDeModification`, 403) et ne supprime pas.
   Le dashboard masque les boutons selon les mêmes règles (`peutModifier`/`peutSupprimer`).
 - Comptes de démo (un par rôle, mot de passe `Demo2026!`) : `python scripts/demo/creer-comptes-demo.py` (rejouable).
+- Recherche : colonne `articles.texte_recherche` (titre + résumé en minuscules sans accents, migration V7),
+  recalculée par `Article` (`@PrePersist`/`@PreUpdate`). Un `INSERT` SQL direct doit la recalculer
+  (voir la fin de `scripts/demo/import-articles-laravel.sql`), sinon l'article est introuvable par la recherche.
 - Un seul article « en vedette » à la fois (`ArticleService.retirerVedetteDesAutres`).
 - `open-in-view: false` : une relation `LAZY` lue dans un DTO hors transaction plante
   (LazyInitializationException → 500). Charger la relation avec `@EntityGraph` ou construire le DTO dans un service `@Transactional`.

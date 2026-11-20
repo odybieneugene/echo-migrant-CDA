@@ -2,13 +2,16 @@ package com.echomigrant.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 @Entity
@@ -107,6 +110,11 @@ public class Article {
     )
     private Set<Abonnement> abonnementsRequis = new HashSet<>();
 
+    /** Titre + résumé normalisés (voir {@link #normaliser}), pour la recherche paginée. Calculé, jamais saisi. */
+    @Column(name = "texte_recherche", nullable = false, columnDefinition = "TEXT")
+    @Setter(AccessLevel.NONE)
+    private String texteRecherche;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -118,10 +126,21 @@ public class Article {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
+        majTexteRecherche();
     }
 
     @PreUpdate
     void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+        majTexteRecherche();
+    }
+
+    private void majTexteRecherche() {
+        this.texteRecherche = normaliser(titre + " " + (resume == null ? "" : resume));
+    }
+
+    /** Minuscules et sans accents : « Société » devient « societe ». Même règle que la migration V7. */
+    public static String normaliser(String texte) {
+        return Normalizer.normalize(texte, Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT);
     }
 }

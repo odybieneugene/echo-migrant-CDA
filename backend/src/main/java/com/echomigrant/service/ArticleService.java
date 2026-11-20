@@ -2,12 +2,15 @@ package com.echomigrant.service;
 
 import com.echomigrant.dto.ArticleRequest;
 import com.echomigrant.dto.ArticleResponse;
+import com.echomigrant.dto.PageResponse;
 import com.echomigrant.entity.*;
 import com.echomigrant.exception.ResourceNotFoundException;
 import com.echomigrant.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,35 @@ public class ArticleService {
     public List<ArticleResponse> findPublies(Integer limit) {
         Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
         return articleRepository.findAllPublies(pageable).stream().map(a -> ArticleResponse.from(a, uploadsBaseUrl)).toList();
+    }
+
+    /**
+     * Articles publiés, page par page, du plus récent au plus ancien.
+     * Chaque mot de {@code recherche} doit apparaître dans le titre ou le résumé (sans tenir compte
+     * des accents ni des majuscules). Le tri secondaire par id rend l'ordre stable entre deux pages.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<ArticleResponse> rechercherPublies(Long categorieId, String recherche, int page, int taille) {
+        Specification<Article> spec = (root, query, cb) -> cb.equal(root.get("statut").get("nom"), "publie");
+        if (categorieId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("categorie").get("id"), categorieId));
+        }
+        if (recherche != null) {
+            for (String mot : Article.normaliser(recherche).trim().split("\\s+")) {
+                if (!mot.isEmpty()) {
+                    String motif = "%" + echapperLike(mot) + "%";
+                    spec = spec.and((root, query, cb) -> cb.like(root.get("texteRecherche"), motif, '\\'));
+                }
+            }
+        }
+        Sort tri = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+        return PageResponse.from(articleRepository.findAll(spec, PageRequest.of(page, taille, tri))
+            .map(a -> ArticleResponse.from(a, uploadsBaseUrl)));
+    }
+
+    /** « 100% » doit chercher le caractère %, pas « n'importe quoi » : on échappe les jokers de LIKE. */
+    private static String echapperLike(String mot) {
+        return mot.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     @Transactional(readOnly = true)
