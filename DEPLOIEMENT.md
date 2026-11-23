@@ -159,7 +159,7 @@ Première fois : 5 à 10 minutes (construction des images). Vérifier :
 ```bash
 docker compose -f docker-compose.prod.yml ps                        # 3 services "Up"
 docker compose -f docker-compose.prod.yml logs backend | grep -E "migrations|vérifiée|Started"
-#   Successfully applied 4 migrations ...
+#   Successfully applied 7 migrations ...
 #   Configuration de production vérifiée : secrets présents et non triviaux
 #   Started EchoMigrantApplication in ... seconds
 curl -s http://127.0.0.1:8080/api/ping                              # {"message":"API Echo Migrant (Spring Boot) fonctionne ✅"}
@@ -295,7 +295,7 @@ docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 docker compose -f docker-compose.prod.yml logs --tail 50 backend
 ```
 
-- Les **migrations Flyway** (`V5__...sql`…) s'appliquent seules au démarrage du backend.
+- Les **migrations Flyway** (`V8__...sql`…) s'appliquent seules au démarrage du backend.
   Une migration déjà appliquée n'est jamais modifiée : toute évolution du schéma = nouvelle migration.
 - Coupure de service : quelques secondes pendant le redémarrage des conteneurs.
 - **Retour arrière** : `git checkout <commit précédent>` puis `up -d --build`. Si la mise à jour
@@ -336,7 +336,7 @@ Sur la machine de développement (Docker Desktop), avec `docker-compose.prod.yml
 | Vérification | Résultat |
 |---|---|
 | Construction des images backend et frontend | ✅ (backend 515 Mo, frontend 75 Mo) — aussi refaite par la CI à chaque push |
-| Démarrage sur une base vierge | ✅ 4 migrations Flyway appliquées, admin initial créé |
+| Démarrage sur une base vierge | ✅ migrations Flyway V1 à V4 appliquées (les seules existantes au moment du test), admin initial créé. V5 à V7, ajoutées depuis, s'appliquent de la même façon (vérifié sur la base de développement) |
 | Profil prod sans variables / avec les secrets de dev / avec un `\r` | ✅ refus, avec le message adapté |
 | Accueil, liens directs (`/dashboard`, `/actualites/3`) via nginx | ✅ 200 |
 | En-têtes de sécurité sur toutes les réponses, version nginx masquée | ✅ |
